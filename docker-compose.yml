@@ -17,6 +17,24 @@ services:
       - postgres
       - rabbitmq
 
+  air-server-responder:
+    networks:
+      - dfir_network
+    build:
+      context: ./apps/air-server-backend
+      dockerfile: ./services/responder/Dockerfile
+    env_file:
+      - ./apps/air-server-backend/services/responder/.env
+    command: pnpm --filter air-server-backend run start:dev responder
+    ports:
+      - 3001:3001
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      - postgres
+      - rabbitmq
+      - emqx_broker
+
   postgres:
     image: postgres:17.5-alpine3.22
     container_name: postgres
@@ -50,7 +68,7 @@ services:
     ports:
       - 6379:6379
 
-  emqx:
+  emqx_broker:
     image: emqx/emqx:5.8.7
     container_name: emqx_broker
     ports:

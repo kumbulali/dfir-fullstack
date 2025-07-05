@@ -7,6 +7,9 @@ export class Responder extends AbstractEntity<Responder> {
   @Column({ type: "varchar", length: 255, unique: true, nullable: false })
   token: string;
 
+  @Column({ type: "varchar", length: 255, nullable: false })
+  password: string;
+
   @Column({ name: "ip_address", type: "varchar", length: 45, nullable: true })
   ipAddress: string;
 

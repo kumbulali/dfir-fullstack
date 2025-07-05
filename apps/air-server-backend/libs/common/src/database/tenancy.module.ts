@@ -14,26 +14,17 @@ export class TenancyModule {
       scope: Scope.REQUEST,
       inject: [REQUEST, TenantConnectionManager],
       useFactory: async (request: any, manager: TenantConnectionManager) => {
-        // --- DÜZELTİLMİŞ KISIM ---
-        // Gelen isteğin (context'in) yapısını kontrol ederek tenantId'yi alıyoruz.
         let tenantId: string | undefined;
 
-        // Standart bir HTTP isteği mi? (REST API)
         if (request.headers) {
           tenantId = request.headers["x-tenant-id"];
-        }
-        // Bir mikroservis mesajı mı? (RabbitMQ, gRPC)
-        // Payload genellikle 'data' içinde veya doğrudan context üzerinde olur.
-        else if (request.data?.tenantId) {
+        } else if (request.data?.tenantId) {
           tenantId = request.data.tenantId;
         } else if (request.tenantId) {
           tenantId = request.tenantId;
         }
 
-        // --- BİTİŞ ---
-
         if (!tenantId) {
-          // Hata ayıklama için gelen context'i loglamak faydalı olabilir.
           console.error(
             "Could not extract tenantId from request context:",
             request,

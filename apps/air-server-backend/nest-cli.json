@@ -45,6 +45,15 @@
       "compilerOptions": {
         "tsConfigPath": "services/ingestion-worker/tsconfig.app.json"
       }
+    },
+    "responder": {
+      "type": "application",
+      "root": "services/responder",
+      "entryFile": "main",
+      "sourceRoot": "services/responder/src",
+      "compilerOptions": {
+        "tsConfigPath": "services/responder/tsconfig.app.json"
+      }
     }
   }
 }
