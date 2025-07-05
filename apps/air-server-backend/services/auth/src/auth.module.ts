@@ -2,11 +2,12 @@ import { Module } from "@nestjs/common";
 import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
 import { ConfigModule } from "@nestjs/config";
+import { HealthModule, LoggerModule } from "@app/common";
 import * as Joi from "joi";
-import { LoggerModule } from "@app/common";
 
 @Module({
   imports: [
+    HealthModule,
     LoggerModule,
     ConfigModule.forRoot({
       isGlobal: true,
