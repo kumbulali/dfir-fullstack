@@ -1,11 +1,21 @@
-import { Module } from "@nestjs/common";
+import { Global, Module } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { TypeOrmModule } from "@nestjs/typeorm";
-import { EntityClassOrSchema } from "@nestjs/typeorm/dist/interfaces/entity-class-or-schema.type";
+import { getDataSourceToken, TypeOrmModule } from "@nestjs/typeorm";
+import { DataSource } from "typeorm";
+import { MASTER_DB_CONNECTION } from "../constants";
 import { Tenant } from "../entities";
+
+const masterDataSourceProvider = {
+  provide: MASTER_DB_CONNECTION,
+  useFactory: (dataSource: DataSource) => dataSource,
+  inject: [getDataSourceToken(MASTER_DB_CONNECTION)],
+};
+
+@Global()
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
+      name: MASTER_DB_CONNECTION,
       useFactory: (configService: ConfigService) => ({
         type: "postgres",
         host: configService.getOrThrow("POSTGRES_HOST"),
@@ -13,15 +23,13 @@ import { Tenant } from "../entities";
         database: configService.getOrThrow("POSTGRES_DB"),
         username: configService.getOrThrow("POSTGRES_USERNAME"),
         password: configService.getOrThrow("POSTGRES_PASSWORD"),
+        entities: [Tenant],
         synchronize: true,
-        autoLoadEntities: true,
       }),
       inject: [ConfigService],
     }),
   ],
+  providers: [masterDataSourceProvider],
+  exports: [masterDataSourceProvider],
 })
-export class DatabaseModule {
-  static forFeature(models: EntityClassOrSchema[]) {
-    return TypeOrmModule.forFeature([...models, Tenant]);
-  }
-}
+export class MasterDatabaseModule {}

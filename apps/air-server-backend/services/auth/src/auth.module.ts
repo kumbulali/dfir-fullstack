@@ -1,14 +1,23 @@
 import { Module } from "@nestjs/common";
 import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
-import { ConfigModule } from "@nestjs/config";
-import { DatabaseModule, HealthModule, LoggerModule } from "@app/common";
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import {
+  HealthModule,
+  LoggerModule,
+  MasterDatabaseModule,
+  TenancyModule,
+} from "@app/common";
 import * as Joi from "joi";
+import { CqrsModule } from "@nestjs/cqrs";
+import { PassportModule } from "@nestjs/passport";
+import { JwtModule } from "@nestjs/jwt";
+import { LoginUserQueryHandler } from "./queries/handlers/login-user.query.handler";
+import { LocalStrategy } from "./strategies/local.strategy";
 
+export const QueryHandlers = [LoginUserQueryHandler];
 @Module({
   imports: [
-    DatabaseModule,
-    DatabaseModule.forFeature([]),
     HealthModule,
     LoggerModule,
     ConfigModule.forRoot({
@@ -19,8 +28,20 @@ import * as Joi from "joi";
         JWT_SECRET: Joi.string().required(),
       }),
     }),
+    MasterDatabaseModule,
+    TenancyModule.register(),
+    CqrsModule,
+    PassportModule,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.getOrThrow("JWT_SECRET"),
+        signOptions: { expiresIn: "60m" },
+      }),
+    }),
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, LocalStrategy, ...QueryHandlers],
 })
 export class AuthModule {}
