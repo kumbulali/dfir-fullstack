@@ -24,7 +24,7 @@ services:
     environment:
       POSTGRES_USER: dfiruser
       POSTGRES_PASSWORD: dfirpassword
-      POSTGRES_DB: dfirdb
+      POSTGRES_DB: dfir_master
     ports:
       - 5432:5432
     volumes:

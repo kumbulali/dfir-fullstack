@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { EntityClassOrSchema } from "@nestjs/typeorm/dist/interfaces/entity-class-or-schema.type";
+import { Tenant } from "../entities";
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
@@ -21,6 +22,6 @@ import { EntityClassOrSchema } from "@nestjs/typeorm/dist/interfaces/entity-clas
 })
 export class DatabaseModule {
   static forFeature(models: EntityClassOrSchema[]) {
-    return TypeOrmModule.forFeature(models);
+    return TypeOrmModule.forFeature([...models, Tenant]);
   }
 }
