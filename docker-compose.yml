@@ -1,0 +1,57 @@
+services:
+  # --- AIR SERVER BACKEND SERVICES --- #
+  air-server-auth:
+    networks:
+      - dfir_network
+    build:
+      context: ./apps/main-api/services/auth
+      dockerfile: Dockerfile
+      target: development
+    env_file:
+      - ./apps/main-api/services/auth/.env
+    command: pnpm run start:dev auth
+    ports:
+      - 3000:3000
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      - postgres
+      - rabbitmq
+
+  postgres:
+    image: postgres:17.5-alpine3.22
+    networks:
+      - dfir_network
+    environment:
+      POSTGRES_USER: dfiruser
+      POSTGRES_PASSWORD: dfirpassword
+      POSTGRES_DB: dfirdb
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:4.1.2-alpine
+    container_name: rabbitmq
+    networks:
+      - dfir_network
+    environment:
+      - RABBITMQ_DEFAULT_USER=dfiruser
+      - RABBITMQ_DEFAULT_PASS=dfirpassword
+    ports:
+      - '5672:5672'
+
+  redis:
+    image: redis:8.0.2-alpine
+    container_name: redis
+    networks:
+      - dfir_network
+    ports:
+      - '6379:6379'
+networks:
+  dfir_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
