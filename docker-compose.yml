@@ -4,12 +4,11 @@ services:
     networks:
       - dfir_network
     build:
-      context: ./apps/main-api/services/auth
-      dockerfile: Dockerfile
-      target: development
+      context: ./apps/air-server-backend
+      dockerfile: ./services/auth/Dockerfile
     env_file:
-      - ./apps/main-api/services/auth/.env
-    command: pnpm run start:dev auth
+      - ./apps/air-server-backend/services/auth/.env
+    command: pnpm --filter air-server-backend run start:dev auth
     ports:
       - 3000:3000
     volumes:
