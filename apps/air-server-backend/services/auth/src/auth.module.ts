@@ -13,9 +13,10 @@ import { CqrsModule } from "@nestjs/cqrs";
 import { PassportModule } from "@nestjs/passport";
 import { JwtModule } from "@nestjs/jwt";
 import { LoginUserQueryHandler } from "./queries/handlers/login-user.handler";
+import { VerifyJwtQueryHandler } from "./queries/handlers/verify-jwt.handler";
 import { LocalStrategy } from "./strategies/local.strategy";
 
-export const QueryHandlers = [LoginUserQueryHandler];
+export const QueryHandlers = [LoginUserQueryHandler, VerifyJwtQueryHandler];
 @Module({
   imports: [
     HealthModule,

@@ -2,17 +2,19 @@ import { Module } from "@nestjs/common";
 import { ResponderController } from "./responder.controller";
 import { EmqxService } from "./emqx.service";
 import {
+  AUTH_SERVICE,
   HealthModule,
   LoggerModule,
   MasterDatabaseModule,
   TenancyModule,
 } from "@app/common";
-import { ConfigModule } from "@nestjs/config";
+import { ConfigModule, ConfigService } from "@nestjs/config";
 import * as Joi from "joi";
 import { CqrsModule } from "@nestjs/cqrs";
 import { RegisterResponderHandler } from "./commands/handlers/register-responder.command.handler";
 import { HttpModule } from "@nestjs/axios";
 import { CreateEnrollmentTokenHandler } from "./commands/handlers/create-enrollment-token.handler";
+import { ClientsModule, Transport } from "@nestjs/microservices";
 
 export const CommandHandlers = [
   RegisterResponderHandler,
@@ -34,6 +36,19 @@ export const CommandHandlers = [
     MasterDatabaseModule,
     TenancyModule.register(),
     CqrsModule,
+    ClientsModule.registerAsync([
+      {
+        name: AUTH_SERVICE,
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.RMQ,
+          options: {
+            urls: [configService.getOrThrow<string>("RABBITMQ_URI")],
+            queue: AUTH_SERVICE,
+          },
+        }),
+        inject: [ConfigService],
+      },
+    ]),
   ],
   controllers: [ResponderController],
   providers: [EmqxService, ...CommandHandlers],

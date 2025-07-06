@@ -3,7 +3,7 @@ import { CommandBus } from "@nestjs/cqrs";
 import { RegisterResponderCommand } from "./commands/impl/register-responder.command";
 import { RegisterResponderDto } from "./dtos/register-responder.dto";
 import { CreateEnrollmentTokenCommand } from "./commands/impl/create-enrollment-token.command";
-import { TenantGuard } from "@app/common";
+import { JwtAuthGuard, TenantGuard } from "@app/common";
 
 @Controller("responders")
 export class ResponderController {
@@ -21,7 +21,7 @@ export class ResponderController {
     );
   }
 
-  @UseGuards(TenantGuard)
+  @UseGuards(JwtAuthGuard)
   @Post("token")
   async createToken(@Headers("x-tenant-id") tenantId: string) {
     return this.commandBus.execute(new CreateEnrollmentTokenCommand(tenantId));
