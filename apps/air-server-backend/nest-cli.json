@@ -28,6 +28,15 @@
         "tsConfigPath": "libs/common/tsconfig.lib.json"
       }
     },
+    "ingestion": {
+      "type": "application",
+      "root": "services/ingestion",
+      "entryFile": "main",
+      "sourceRoot": "services/ingestion/src",
+      "compilerOptions": {
+        "tsConfigPath": "services/ingestion/tsconfig.app.json"
+      }
+    },
     "responder": {
       "type": "application",
       "root": "services/responder",
@@ -37,14 +46,13 @@
         "tsConfigPath": "services/responder/tsconfig.app.json"
       }
     },
-
-    "ingestion": {
+    "sync": {
       "type": "application",
-      "root": "services/ingestion",
+      "root": "services/sync",
       "entryFile": "main",
-      "sourceRoot": "services/ingestion/src",
+      "sourceRoot": "services/sync/src",
       "compilerOptions": {
-        "tsConfigPath": "services/ingestion/tsconfig.app.json"
+        "tsConfigPath": "services/sync/tsconfig.app.json"
       }
     }
   }

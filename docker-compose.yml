@@ -49,6 +49,21 @@ services:
     depends_on:
       - rabbitmq
       - emqx_broker
+
+  air-server-sync:
+    networks:
+      - dfir_network
+    build:
+      context: ./apps/air-server-backend
+      dockerfile: ./services/sync/Dockerfile
+    env_file:
+      - ./apps/air-server-backend/services/sync/.env
+    command: pnpm --filter air-server-backend run start:dev sync
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      - postgres
+      - redis
       
   postgres:
     image: postgres:17.5-alpine3.22
