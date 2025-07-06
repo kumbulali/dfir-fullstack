@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { IsIP, IsNotEmpty, IsNumber, IsString } from "class-validator";
 
 export class HeartbeatPayloadDto {
   @IsString()
@@ -9,7 +9,11 @@ export class HeartbeatPayloadDto {
   @IsNotEmpty()
   responderId: number;
 
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  timestamp: number;
+  os: string;
+
+  @IsIP()
+  @IsNotEmpty()
+  ip: string;
 }

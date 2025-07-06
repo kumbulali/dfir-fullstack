@@ -1,14 +1,14 @@
 import { Module } from "@nestjs/common";
-import { ProcessHeartbeatCommandHandler } from "./commands/handlers/process-heartbeat.handler";
 import { LoggerModule, REDIS_CLIENT } from "@app/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import * as Joi from "joi";
 import { CqrsModule } from "@nestjs/cqrs";
-import { IngestionController } from "./ingestion.controller";
 import Redis from "ioredis";
+import { RabbitMQModule } from "@golevelup/nestjs-rabbitmq";
+import { IngestionService } from "./ingestion.service";
+import { HeartbeatReceivedHandler } from "./events/handlers/heartbeat-received.handler";
 
-export const CommandHandlers = [ProcessHeartbeatCommandHandler];
-
+export const EventHandlers = [HeartbeatReceivedHandler];
 @Module({
   imports: [
     LoggerModule,
@@ -21,10 +21,26 @@ export const CommandHandlers = [ProcessHeartbeatCommandHandler];
       }),
     }),
     CqrsModule,
+    RabbitMQModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        return {
+          exchanges: [
+            {
+              name: "health_exchange",
+              type: "direct",
+              durable: true,
+            },
+          ],
+          uri: configService.getOrThrow<string>("RABBITMQ_URI"),
+          connectionInitOptions: { wait: false },
+        };
+      },
+    }),
   ],
-  controllers: [IngestionController],
   providers: [
-    ...CommandHandlers,
+    IngestionService,
+    ...EventHandlers,
     {
       provide: REDIS_CLIENT,
       inject: [ConfigService],
