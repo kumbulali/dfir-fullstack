@@ -79,6 +79,7 @@ services:
     volumes:
       - ./emqx/emqx.conf:/opt/emqx/etc/emqx.conf
       - ./emqx/plugins/emqx_auth_http.conf:/opt/emqx/etc/plugins/emqx_auth_http.conf
+      - ./emqx_data:/opt/emqx/data
     networks:
       - dfir_network
     depends_on:

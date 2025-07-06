@@ -43,6 +43,11 @@ export class EmqxService {
             action: "publish",
             topic: `health/${tenantId}/${username}`,
           },
+          {
+            permission: "deny",
+            action: "all",
+            topic: `#`,
+          },
         ],
       },
     ];
