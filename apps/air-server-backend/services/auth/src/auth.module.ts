@@ -14,7 +14,6 @@ import { PassportModule } from "@nestjs/passport";
 import { JwtModule } from "@nestjs/jwt";
 import { LoginUserQueryHandler } from "./queries/handlers/login-user.handler";
 import { LocalStrategy } from "./strategies/local.strategy";
-import { MqttAuthModule } from "./mqtt-auth/mqtt-auth.module";
 
 export const QueryHandlers = [LoginUserQueryHandler];
 @Module({
@@ -41,7 +40,6 @@ export const QueryHandlers = [LoginUserQueryHandler];
         signOptions: { expiresIn: "60m" },
       }),
     }),
-    MqttAuthModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, LocalStrategy, ...QueryHandlers],
