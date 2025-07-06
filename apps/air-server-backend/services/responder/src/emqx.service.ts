@@ -44,6 +44,16 @@ export class EmqxService {
             topic: `health/${tenantId}/${username}`,
           },
           {
+            permission: "allow",
+            action: "subscribe",
+            topic: `command/request/${tenantId}/${username}`,
+          },
+          {
+            permission: "allow",
+            action: "publish",
+            topic: `command/response/${tenantId}/${username}`,
+          },
+          {
             permission: "deny",
             action: "all",
             topic: `#`,
