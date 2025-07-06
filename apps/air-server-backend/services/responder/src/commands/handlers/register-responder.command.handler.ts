@@ -23,7 +23,7 @@ export class RegisterResponderHandler
 
   constructor(
     private readonly tenantManager: TenantConnectionManager,
-    private readonly emqxApiService: EmqxService,
+    private readonly emqxService: EmqxService,
   ) {}
 
   async execute(command: RegisterResponderCommand) {
@@ -62,8 +62,8 @@ export class RegisterResponderHandler
     );
 
     try {
-      await this.emqxApiService.provisionUser(username, password);
-      await this.emqxApiService.provisionAcl(tenantId, username);
+      await this.emqxService.provisionUser(username, password);
+      await this.emqxService.provisionAcl(tenantId, username);
 
       tokenRecord.usedAt = new Date();
       await enrollmentTokenRepo.save(tokenRecord);

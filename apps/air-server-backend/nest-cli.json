@@ -28,24 +28,6 @@
         "tsConfigPath": "libs/common/tsconfig.lib.json"
       }
     },
-    "heartbeat": {
-      "type": "application",
-      "root": "services/heartbeat",
-      "entryFile": "main",
-      "sourceRoot": "services/heartbeat/src",
-      "compilerOptions": {
-        "tsConfigPath": "services/heartbeat/tsconfig.app.json"
-      }
-    },
-    "ingestion-worker": {
-      "type": "application",
-      "root": "services/ingestion-worker",
-      "entryFile": "main",
-      "sourceRoot": "services/ingestion-worker/src",
-      "compilerOptions": {
-        "tsConfigPath": "services/ingestion-worker/tsconfig.app.json"
-      }
-    },
     "responder": {
       "type": "application",
       "root": "services/responder",
@@ -53,6 +35,16 @@
       "sourceRoot": "services/responder/src",
       "compilerOptions": {
         "tsConfigPath": "services/responder/tsconfig.app.json"
+      }
+    },
+
+    "ingestion": {
+      "type": "application",
+      "root": "services/ingestion",
+      "entryFile": "main",
+      "sourceRoot": "services/ingestion/src",
+      "compilerOptions": {
+        "tsConfigPath": "services/ingestion/tsconfig.app.json"
       }
     }
   }
