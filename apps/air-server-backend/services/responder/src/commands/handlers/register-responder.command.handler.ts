@@ -2,11 +2,13 @@ import * as bcrypt from "bcrypt";
 import * as crypto from "crypto";
 import { RegisterResponderCommand } from "../impl/register-responder.command";
 import {
+  Inject,
   InternalServerErrorException,
   Logger,
   UnauthorizedException,
 } from "@nestjs/common";
 import {
+  AUTH_SERVICE,
   EnrollmentToken,
   Responder,
   ResponderStatus,
@@ -14,6 +16,8 @@ import {
 } from "@app/common";
 import { EmqxService } from "../../emqx.service";
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
+import { ClientProxy } from "@nestjs/microservices";
+import { firstValueFrom } from "rxjs";
 
 @CommandHandler(RegisterResponderCommand)
 export class RegisterResponderHandler
@@ -24,6 +28,7 @@ export class RegisterResponderHandler
   constructor(
     private readonly tenantManager: TenantConnectionManager,
     private readonly emqxService: EmqxService,
+    @Inject(AUTH_SERVICE) private readonly authClient: ClientProxy,
   ) {}
 
   async execute(command: RegisterResponderCommand) {
@@ -61,6 +66,18 @@ export class RegisterResponderHandler
       }),
     );
 
+    const { accessToken, jti } = await firstValueFrom(
+      this.authClient.send("generate_responder_jwt", {
+        responder: savedResponder,
+        tenantId,
+      }),
+    );
+
+    await responderRepository.update(
+      { id: savedResponder.id },
+      { activeJti: jti },
+    );
+
     try {
       await this.emqxService.provisionUser(username, password);
       await this.emqxService.provisionAcl(tenantId, username);
@@ -82,6 +99,7 @@ export class RegisterResponderHandler
       message: "Responder registered and provisioned successfully.",
       username: username,
       password: password,
+      accessToken,
     };
   }
 }

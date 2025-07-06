@@ -8,7 +8,7 @@ import {
 } from "@nestjs/common";
 import { CommandBus } from "@nestjs/cqrs";
 import { AssignJobCommand } from "./commands/impl/assign-job.command";
-import { JwtAuthGuard } from "@app/common";
+import { JwtAuthGuard, ResponderJwtGuard } from "@app/common";
 import { AssignJobDto } from "./dtos/assign-job.dto";
 import { SubmitJobResultDto } from "./dtos/submit-job-result.dto";
 import { SubmitJobResultCommand } from "./commands/impl/submit-job-result.command";
@@ -28,6 +28,7 @@ export class JobServiceController {
     );
   }
 
+  @UseGuards(ResponderJwtGuard)
   @Post(":jobId/result")
   async submitResult(
     @Headers("x-tenant-id") tenantId: string,

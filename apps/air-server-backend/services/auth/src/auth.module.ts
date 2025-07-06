@@ -16,8 +16,13 @@ import { JwtModule } from "@nestjs/jwt";
 import { LoginUserQueryHandler } from "./queries/handlers/login-user.handler";
 import { VerifyJwtQueryHandler } from "./queries/handlers/verify-jwt.handler";
 import { LocalStrategy } from "./strategies/local.strategy";
+import { VerifyResponderJwtQueryHandler } from "./queries/handlers/verify-responder-jwt.handler";
 
-export const QueryHandlers = [LoginUserQueryHandler, VerifyJwtQueryHandler];
+export const QueryHandlers = [
+  LoginUserQueryHandler,
+  VerifyJwtQueryHandler,
+  VerifyResponderJwtQueryHandler,
+];
 @Module({
   imports: [
     HealthModule,

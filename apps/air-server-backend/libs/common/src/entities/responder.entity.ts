@@ -30,4 +30,7 @@ export class Responder extends AbstractEntity<Responder> {
     default: ResponderStatus.UNKNOWN,
   })
   status: ResponderStatus;
+
+  @Column({ name: "active_jti", type: "varchar", length: 255, nullable: true })
+  activeJti: string;
 }
