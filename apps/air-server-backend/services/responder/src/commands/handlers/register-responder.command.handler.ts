@@ -1,13 +1,19 @@
-import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import * as bcrypt from "bcrypt";
 import * as crypto from "crypto";
-import { TenantConnectionManager } from "@app/common/database/tenant-connection.manager";
 import { RegisterResponderCommand } from "../impl/register-responder.command";
-import { InternalServerErrorException, Logger } from "@nestjs/common";
+import {
+  InternalServerErrorException,
+  Logger,
+  UnauthorizedException,
+} from "@nestjs/common";
+import {
+  EnrollmentToken,
+  Responder,
+  ResponderStatus,
+  TenantConnectionManager,
+} from "@app/common";
 import { EmqxService } from "../../emqx.service";
-import { Responder, ResponderStatus } from "@app/common";
-// EmqxApiService import edildi
-// import { EmqxApiService } from '@app/common/emqx/emqx-api.service';
+import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 
 @CommandHandler(RegisterResponderCommand)
 export class RegisterResponderHandler
@@ -17,15 +23,29 @@ export class RegisterResponderHandler
 
   constructor(
     private readonly tenantManager: TenantConnectionManager,
-    private readonly emqxApiService: EmqxService, // HttpService yerine EmqxApiService enjekte edildi
+    private readonly emqxApiService: EmqxService,
   ) {}
 
   async execute(command: RegisterResponderCommand) {
     const { tenantId, registerDto, ipAddress } = command;
+    const { enrollmentToken, operatingSystem } = registerDto;
 
     const connection = await this.tenantManager.getConnection(tenantId);
-    const responderRepository = connection.getRepository(Responder);
+    const enrollmentTokenRepo = connection.getRepository(EnrollmentToken);
 
+    const tokenRecord = await enrollmentTokenRepo.findOneBy({
+      token: enrollmentToken,
+    });
+
+    if (
+      !tokenRecord ||
+      tokenRecord.usedAt ||
+      tokenRecord.expiresAt < new Date()
+    ) {
+      throw new UnauthorizedException("Invalid or expired enrollment token.");
+    }
+
+    const responderRepository = connection.getRepository(Responder);
     const password = crypto.randomBytes(16).toString("hex");
     const hashedPassword = await bcrypt.hash(password, 10);
     const username = `resp_${crypto.randomBytes(12).toString("hex")}`;
@@ -34,7 +54,7 @@ export class RegisterResponderHandler
       responderRepository.create({
         token: username,
         password: hashedPassword,
-        operatingSystem: registerDto.operatingSystem,
+        operatingSystem: operatingSystem,
         ipAddress: ipAddress,
         lastSeen: new Date(),
         status: ResponderStatus.HEALTHY,
@@ -44,6 +64,9 @@ export class RegisterResponderHandler
     try {
       await this.emqxApiService.provisionUser(username, password);
       await this.emqxApiService.provisionAcl(tenantId, username);
+
+      tokenRecord.usedAt = new Date();
+      await enrollmentTokenRepo.save(tokenRecord);
     } catch (error) {
       this.logger.error(
         `Failed to provision EMQX user for ${username}. Rolling back database insert.`,

@@ -1,9 +1,18 @@
-import { IsString, IsNotEmpty } from "class-validator";
+import {
+  IsString,
+  IsNotEmpty,
+  IsAlphanumeric,
+  IsUppercase,
+  Length,
+} from "class-validator";
 
 export class RegisterResponderDto {
   @IsString()
   @IsNotEmpty()
-  bootstrapToken: string;
+  @IsAlphanumeric()
+  @IsUppercase()
+  @Length(6, 6)
+  enrollmentToken: string;
 
   @IsString()
   @IsNotEmpty()

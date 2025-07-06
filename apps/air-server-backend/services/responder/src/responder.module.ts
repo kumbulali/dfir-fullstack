@@ -12,8 +12,12 @@ import * as Joi from "joi";
 import { CqrsModule } from "@nestjs/cqrs";
 import { RegisterResponderHandler } from "./commands/handlers/register-responder.command.handler";
 import { HttpModule } from "@nestjs/axios";
+import { CreateEnrollmentTokenHandler } from "./commands/handlers/create-enrollment-token.handler";
 
-export const CommandHandlers = [RegisterResponderHandler];
+export const CommandHandlers = [
+  RegisterResponderHandler,
+  CreateEnrollmentTokenHandler,
+];
 
 @Module({
   imports: [
