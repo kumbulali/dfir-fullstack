@@ -15,10 +15,13 @@ import { RegisterResponderHandler } from "./commands/handlers/register-responder
 import { HttpModule } from "@nestjs/axios";
 import { CreateEnrollmentTokenHandler } from "./commands/handlers/create-enrollment-token.handler";
 import { ClientsModule, Transport } from "@nestjs/microservices";
+import { ResponderHealthController } from "./responder-health.controller";
+import { BatchUpdateRespondersHandler } from "./commands/handlers/batch-update-responders.handler";
 
 export const CommandHandlers = [
   RegisterResponderHandler,
   CreateEnrollmentTokenHandler,
+  BatchUpdateRespondersHandler,
 ];
 
 @Module({
@@ -60,7 +63,7 @@ export const CommandHandlers = [
       },
     ]),
   ],
-  controllers: [ResponderController],
+  controllers: [ResponderController, ResponderHealthController],
   providers: [EmqxService, ...CommandHandlers],
 })
 export class ResponderModule {}
