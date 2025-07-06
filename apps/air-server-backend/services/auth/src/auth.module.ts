@@ -27,6 +27,11 @@ export const QueryHandlers = [LoginUserQueryHandler, VerifyJwtQueryHandler];
       validationSchema: Joi.object({
         PORT: Joi.number().default(3000).required(),
         RABBITMQ_URI: Joi.string().required(),
+        POSTGRES_HOST: Joi.string().required(),
+        POSTGRES_PORT: Joi.number().required(),
+        POSTGRES_USERNAME: Joi.string().required(),
+        POSTGRES_PASSWORD: Joi.string().required(),
+        POSTGRES_DB: Joi.string().required(),
         JWT_SECRET: Joi.string().required(),
       }),
     }),

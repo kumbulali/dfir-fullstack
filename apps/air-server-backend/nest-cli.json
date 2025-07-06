@@ -37,6 +37,15 @@
         "tsConfigPath": "services/ingestion/tsconfig.app.json"
       }
     },
+    "job-service": {
+      "type": "application",
+      "root": "services/job-service",
+      "entryFile": "main",
+      "sourceRoot": "services/job-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "services/job-service/tsconfig.app.json"
+      }
+    },
     "responder": {
       "type": "application",
       "root": "services/responder",

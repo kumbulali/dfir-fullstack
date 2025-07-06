@@ -65,6 +65,25 @@ services:
       - postgres
       - redis
       
+  air-server-job-service:
+    networks:
+      - dfir_network
+    build:
+      context: ./apps/air-server-backend
+      dockerfile: ./services/job-service/Dockerfile
+    env_file:
+      - ./apps/air-server-backend/services/job-service/.env
+    command: pnpm --filter air-server-backend run start:dev job-service
+    ports:
+      - 3002:3002
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      - postgres
+      - rabbitmq
+      - emqx_broker
+
+  # --- EXTERNAL SERVICES --- #
   postgres:
     image: postgres:17.5-alpine3.22
     container_name: postgres
@@ -80,7 +99,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   rabbitmq:
-    image: rabbitmq:4.1.2-management
+    image: rabbitmq:4.1.2-alpine
     container_name: rabbitmq
     networks:
       - dfir_network

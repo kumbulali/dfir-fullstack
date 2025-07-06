@@ -2,7 +2,7 @@ import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { DataSource, DataSourceOptions } from "typeorm";
 import { Redis } from "ioredis";
 import { MASTER_DB_CONNECTION, REDIS_CLIENT } from "../constants";
-import { EnrollmentToken, Responder, Tenant, User } from "../entities";
+import { EnrollmentToken, Job, Responder, Tenant, User } from "../entities";
 import { TenantStatus } from "../enums";
 
 @Injectable()
@@ -32,7 +32,7 @@ export class TenantConnectionManager {
       database: tenantData.dbName,
       username: tenantData.dbUser,
       password: password,
-      entities: [User, Responder, EnrollmentToken],
+      entities: [User, Responder, EnrollmentToken, Job],
       synchronize: true, // DEV
     };
 
