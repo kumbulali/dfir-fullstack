@@ -1,7 +1,7 @@
 import { EventsHandler, IEventHandler } from "@nestjs/cqrs";
 import { Inject, Logger } from "@nestjs/common";
 import { Redis } from "ioredis";
-import { REDIS_CLIENT } from "@app/common/constants";
+import { HEARTBEAT_PERIOD, REDIS_CLIENT } from "@app/common/constants";
 import { HeartbeatReceivedEvent } from "../impl/heartbeat-received.event";
 import { ResponderStatus } from "@app/common";
 
@@ -24,7 +24,7 @@ export class HeartbeatReceivedHandler
         os,
         ip,
       });
-      await this.redisClient.expire(redisKey, 300); // 5 mins
+      await this.redisClient.expire(redisKey, HEARTBEAT_PERIOD); // 30 secs
       this.logger.debug(
         `Event proccessed: Tenant ${tenantId}, Responder ${responderId}`,
       );

@@ -10,7 +10,7 @@ export class SyncService {
 
   constructor(private readonly commandBus: CommandBus) {}
 
-  @Cron(CronExpression.EVERY_10_SECONDS)
+  @Cron(CronExpression.EVERY_30_SECONDS)
   async handleCron() {
     if (this.isSyncing) {
       this.logger.warn("Recent update still processing skipping iteration.");

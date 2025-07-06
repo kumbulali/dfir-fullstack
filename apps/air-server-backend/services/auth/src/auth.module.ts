@@ -4,6 +4,7 @@ import { AuthService } from "./auth.service";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import {
   HealthModule,
+  JWT_EXPIRE,
   LoggerModule,
   MasterDatabaseModule,
   TenancyModule,
@@ -38,7 +39,7 @@ export const QueryHandlers = [LoginUserQueryHandler, VerifyJwtQueryHandler];
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.getOrThrow("JWT_SECRET"),
-        signOptions: { expiresIn: "60m" },
+        signOptions: { expiresIn: `${JWT_EXPIRE}m` },
       }),
     }),
   ],
