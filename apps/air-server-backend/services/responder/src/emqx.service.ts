@@ -32,7 +32,11 @@ export class EmqxService {
     this.logger.log(`Successfully created EMQX user: ${username}`);
   }
 
-  async provisionAcl(tenantId: string, username: string): Promise<void> {
+  async provisionAcl(
+    tenantId: string,
+    username: string,
+    responderId: number,
+  ): Promise<void> {
     const endpoint = "/authorization/sources/built_in_database/rules/users";
     const payload = [
       {
@@ -41,17 +45,17 @@ export class EmqxService {
           {
             permission: "allow",
             action: "publish",
-            topic: `health/${tenantId}/${username}`,
+            topic: `health/${tenantId}/${responderId}`,
           },
           {
             permission: "allow",
             action: "subscribe",
-            topic: `command/request/${tenantId}/${username}`,
+            topic: `command/request/${tenantId}/${responderId}`,
           },
           {
             permission: "allow",
             action: "publish",
-            topic: `command/response/${tenantId}/${username}`,
+            topic: `command/response/${tenantId}/${responderId}`,
           },
           {
             permission: "deny",

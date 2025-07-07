@@ -80,7 +80,11 @@ export class RegisterResponderHandler
 
     try {
       await this.emqxService.provisionUser(username, password);
-      await this.emqxService.provisionAcl(tenantId, username);
+      await this.emqxService.provisionAcl(
+        tenantId,
+        username,
+        savedResponder.id,
+      );
 
       tokenRecord.usedAt = new Date();
       await enrollmentTokenRepo.save(tokenRecord);
@@ -97,6 +101,7 @@ export class RegisterResponderHandler
 
     return {
       message: "Responder registered and provisioned successfully.",
+      id: savedResponder.id,
       username: username,
       password: password,
       accessToken,

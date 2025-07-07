@@ -24,7 +24,7 @@ export class HeartbeatReceivedHandler
         os,
         ip,
       });
-      await this.redisClient.expire(redisKey, HEARTBEAT_PERIOD); // 30 secs
+      await this.redisClient.expire(redisKey, HEARTBEAT_PERIOD);
       this.logger.debug(
         `Event proccessed: Tenant ${tenantId}, Responder ${responderId}`,
       );

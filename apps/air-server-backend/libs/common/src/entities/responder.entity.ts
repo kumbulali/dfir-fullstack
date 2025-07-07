@@ -1,10 +1,11 @@
-import { Column, Entity } from "typeorm";
+import { Column, Entity, Index } from "typeorm";
 import { AbstractEntity } from "../database/abstract.entity";
 import { ResponderStatus } from "../enums";
 
 @Entity({ name: "responders" })
 export class Responder extends AbstractEntity<Responder> {
-  @Column({ type: "varchar", length: 255, unique: true, nullable: false })
+  @Index({ unique: true })
+  @Column({ type: "varchar", length: 255, nullable: false })
   token: string;
 
   @Column({ type: "varchar", length: 255, nullable: false })
