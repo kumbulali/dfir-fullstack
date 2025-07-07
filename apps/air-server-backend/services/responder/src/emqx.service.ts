@@ -32,6 +32,12 @@ export class EmqxService {
     this.logger.log(`Successfully created EMQX user: ${username}`);
   }
 
+  async deprovisionUser(username: string): Promise<void> {
+    const endpoint = `/authentication/password_based:built_in_database/users/${username}`;
+    await this.requestWithAuth("delete", endpoint);
+    this.logger.log(`Successfully deprovisioned EMQX user: ${username}`);
+  }
+
   async provisionAcl(
     tenantId: string,
     username: string,
@@ -96,7 +102,7 @@ export class EmqxService {
       return await this.makeRequest(method, endpoint, data);
     } catch (error) {
       if (error.response?.status === 401) {
-        this.logger.warn(
+        this.logger.debug(
           "EMQX API request failed with 401. Retrying with a new token...",
         );
         await this.login();
@@ -117,6 +123,9 @@ export class EmqxService {
       },
     };
     const url = `${this.apiUrl}${endpoint}`;
-    return firstValueFrom(this.httpService[method](url, data, config));
+    if (method === "delete") {
+      return await firstValueFrom(this.httpService.delete(url, config));
+    }
+    return await firstValueFrom(this.httpService[method](url, data, config));
   }
 }

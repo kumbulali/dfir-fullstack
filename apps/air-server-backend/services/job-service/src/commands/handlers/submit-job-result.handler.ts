@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { SubmitJobResultCommand } from "../impl/submit-job-result.command";
 import { Logger, NotFoundException } from "@nestjs/common";
 import { Job, JobStatus, TenantConnectionManager } from "@app/common";
+import { SubmitJobResultCommand } from "../impl/submit-job-result.command";
 
 @CommandHandler(SubmitJobResultCommand)
 export class SubmitJobResultHandler

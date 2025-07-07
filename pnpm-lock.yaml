@@ -214,6 +214,9 @@ importers:
       axios:
         specifier: ^1.10.0
         version: 1.10.0
+      mqtt:
+        specifier: ^5.13.1
+        version: 5.13.1
 
   apps/air-server-backend/services/sync:
     dependencies:

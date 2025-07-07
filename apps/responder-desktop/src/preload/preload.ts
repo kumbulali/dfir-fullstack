@@ -1,11 +1,9 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from "electron";
 
 contextBridge.exposeInMainWorld("electronAPI", {
-  // Sistem Bilgileri
   getOs: (): Promise<string> => ipcRenderer.invoke("get-os"),
   getIp: (): Promise<string> => ipcRenderer.invoke("get-ip"),
 
-  // MQTT İletişim Kanalları
   mqttConnect: (credentials: any) =>
     ipcRenderer.send("mqtt-connect", credentials),
   mqttDisconnect: () => ipcRenderer.send("mqtt-disconnect"),
@@ -16,7 +14,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
     return () => ipcRenderer.removeListener("mqtt-status-update", sub);
   },
 
-  // YENİ: İş (Job) İletişim Kanalları
   onJobNew: (callback: (job: any) => void) => {
     const sub = (event: IpcRendererEvent, job: any) => callback(job);
     ipcRenderer.on("job-new", sub);
@@ -26,5 +23,11 @@ contextBridge.exposeInMainWorld("electronAPI", {
     const sub = (event: IpcRendererEvent, update: any) => callback(update);
     ipcRenderer.on("job-update", sub);
     return () => ipcRenderer.removeListener("job-update", sub);
+  },
+
+  onForceLogout: (callback: () => void) => {
+    const sub = () => callback();
+    ipcRenderer.on("force-logout", sub);
+    return () => ipcRenderer.removeListener("force-logout", sub);
   },
 });

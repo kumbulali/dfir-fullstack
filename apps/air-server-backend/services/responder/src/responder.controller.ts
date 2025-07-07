@@ -10,6 +10,8 @@ import {
   ValidationPipe,
   ClassSerializerInterceptor,
   UseInterceptors,
+  Delete,
+  Param,
 } from "@nestjs/common";
 import { CommandBus, QueryBus } from "@nestjs/cqrs";
 import { RegisterResponderCommand } from "./commands/impl/register-responder.command";
@@ -17,6 +19,7 @@ import { RegisterResponderDto } from "./dtos/register-responder.dto";
 import { CreateEnrollmentTokenCommand } from "./commands/impl/create-enrollment-token.command";
 import { JwtAuthGuard, PaginationDto, TenantGuard } from "@app/common";
 import { GetRespondersQuery } from "./queries/impl/get-responders.query";
+import { DeregisterResponderCommand } from "./commands/impl/deregister-responder.command";
 
 @Controller("responders")
 export class ResponderController {
@@ -34,6 +37,17 @@ export class ResponderController {
   ) {
     return this.commandBus.execute(
       new RegisterResponderCommand(tenantId, registerDto, ipAddress),
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(":id")
+  async deregisterResponder(
+    @Headers("x-tenant-id") tenantId: string,
+    @Param("id") responderId: number,
+  ) {
+    return this.commandBus.execute(
+      new DeregisterResponderCommand(tenantId, responderId),
     );
   }
 

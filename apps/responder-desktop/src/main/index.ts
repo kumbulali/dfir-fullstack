@@ -88,10 +88,14 @@ function connectMqtt(credentials: any) {
     if (topic.startsWith("command/request/")) {
       try {
         const jobData = JSON.parse(message.toString());
-        console.log("[MQTT Main] Received new job:", jobData);
-        processJob(jobData);
+        console.log("[MQTT Main] Received command data:", jobData);
+        if (jobData.command === "deregister") {
+          handleDeregister();
+        } else {
+          processJob(jobData);
+        }
       } catch (e) {
-        console.error("[MQTT Main] Failed to parse job message:", e);
+        console.error("[MQTT Main] Failed to parse command message:", e);
       }
     }
   });
@@ -111,6 +115,24 @@ function connectMqtt(credentials: any) {
     console.log("[MQTT Main] Connection closed.");
     if (mqttClient) sendMqttStatusToRenderer("disconnected");
   });
+}
+
+function handleDeregister() {
+  console.log("[Main] Received deregister command. Forcing logout.");
+  if (mqttClient) {
+    mqttClient.end(true);
+    mqttClient = null;
+  }
+  if (healthCheckInterval) {
+    clearInterval(healthCheckInterval);
+    healthCheckInterval = null;
+  }
+  currentAccessToken = null;
+  currentTenantId = null;
+
+  if (mainWindow) {
+    mainWindow.webContents.send("force-logout");
+  }
 }
 
 async function processJob(jobData: any) {
@@ -224,7 +246,7 @@ function getIpAddress() {
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 900,
+    width: 800,
     height: 600,
     webPreferences: {
       preload: path.join(__dirname, "../preload/preload.js"),

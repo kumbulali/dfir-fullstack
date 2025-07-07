@@ -15,8 +15,13 @@ import { AssignJobHandler } from "./commands/handlers/assign-job.handler";
 import { MqttModule } from "./mqtt/mqtt.module";
 import { SubmitJobResultHandler } from "./commands/handlers/submit-job-result.handler";
 import { GetJobsQueryHandler } from "./queries/handlers/get-jobs.handler";
+import { DeleteResponderJobsCommandHandler } from "./commands/handlers/delete-responder-jobs.handler";
 
-export const CommandHandlers = [AssignJobHandler, SubmitJobResultHandler];
+export const CommandHandlers = [
+  AssignJobHandler,
+  SubmitJobResultHandler,
+  DeleteResponderJobsCommandHandler,
+];
 export const QueryHandlers = [GetJobsQueryHandler];
 
 @Module({

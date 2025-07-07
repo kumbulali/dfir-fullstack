@@ -4,6 +4,7 @@ import { EmqxService } from "./emqx.service";
 import {
   AUTH_SERVICE,
   HealthModule,
+  JOB_SERVICE,
   LoggerModule,
   MasterDatabaseModule,
   TenancyModule,
@@ -18,11 +19,14 @@ import { ClientsModule, Transport } from "@nestjs/microservices";
 import { ResponderHealthController } from "./responder-health.controller";
 import { BatchUpdateRespondersHandler } from "./commands/handlers/batch-update-responders.handler";
 import { GetRespondersQueryHandler } from "./queries/handlers/get-responders.handler";
+import { DeregisterResponderHandler } from "./commands/handlers/deregister-responder.handler";
+import { MqttModule } from "services/job-service/src/mqtt/mqtt.module";
 
 export const CommandHandlers = [
   RegisterResponderHandler,
   CreateEnrollmentTokenHandler,
   BatchUpdateRespondersHandler,
+  DeregisterResponderHandler,
 ];
 
 export const QueryHandlers = [GetRespondersQueryHandler];
@@ -47,6 +51,9 @@ export const QueryHandlers = [GetRespondersQueryHandler];
         EMQX_API_URL: Joi.string().required(),
         EMQX_API_USER: Joi.string().required(),
         EMQX_API_PASSWORD: Joi.string().required(),
+        EMQX_MQTT_URL: Joi.string().required(),
+        EMQX_MQTT_USER: Joi.string().required(),
+        EMQX_MQTT_PASSWORD: Joi.string().required(),
       }),
     }),
     MasterDatabaseModule,
@@ -64,7 +71,19 @@ export const QueryHandlers = [GetRespondersQueryHandler];
         }),
         inject: [ConfigService],
       },
+      {
+        name: JOB_SERVICE,
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.RMQ,
+          options: {
+            urls: [configService.getOrThrow<string>("RABBITMQ_URI")],
+            queue: JOB_SERVICE,
+          },
+        }),
+        inject: [ConfigService],
+      },
     ]),
+    MqttModule.register(),
   ],
   controllers: [ResponderController, ResponderHealthController],
   providers: [EmqxService, ...CommandHandlers, ...QueryHandlers],

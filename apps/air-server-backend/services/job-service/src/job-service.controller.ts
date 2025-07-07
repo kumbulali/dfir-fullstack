@@ -14,8 +14,10 @@ import { AssignJobCommand } from "./commands/impl/assign-job.command";
 import { JwtAuthGuard, PaginationDto, ResponderJwtGuard } from "@app/common";
 import { AssignJobDto } from "./dtos/assign-job.dto";
 import { SubmitJobResultDto } from "./dtos/submit-job-result.dto";
-import { SubmitJobResultCommand } from "./commands/impl/submit-job-result.command";
 import { GetJobsQuery } from "./queries/impl/get-jobs.query";
+import { MessagePattern, Payload } from "@nestjs/microservices";
+import { SubmitJobResultCommand } from "./commands/impl/submit-job-result.command";
+import { DeleteResponderJobsCommand } from "./commands/impl/delete-responder-jobs.command";
 
 @Controller("jobs")
 export class JobServiceController {
@@ -54,6 +56,13 @@ export class JobServiceController {
   ) {
     return this.commandBus.execute(
       new SubmitJobResultCommand(tenantId, jobId, submitResultDto.result),
+    );
+  }
+
+  @MessagePattern("delete_responder_jobs")
+  async verifyJwt(@Payload() data: { responderId: number; tenantId: string }) {
+    return this.commandBus.execute(
+      new DeleteResponderJobsCommand(data.tenantId, data.responderId),
     );
   }
 }

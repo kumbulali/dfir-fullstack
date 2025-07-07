@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { Inject, Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { DataSource, DataSourceOptions } from "typeorm";
 import { Redis } from "ioredis";
 import { MASTER_DB_CONNECTION, REDIS_CLIENT } from "../constants";
@@ -8,6 +8,7 @@ import { TenantStatus } from "../enums";
 @Injectable()
 export class TenantConnectionManager {
   private readonly localConnectionCache = new Map<string, DataSource>();
+  private readonly logger = new Logger(TenantConnectionManager.name);
 
   constructor(
     @Inject(MASTER_DB_CONNECTION) private readonly masterConnection: DataSource,
@@ -48,11 +49,11 @@ export class TenantConnectionManager {
     const cachedData = await this.redisClient.get(cacheKey);
 
     if (cachedData) {
-      console.log(`Tenant data for ${tenantId} found in Redis cache.`);
+      this.logger.log(`Tenant data for ${tenantId} found in Redis cache.`);
       return JSON.parse(cachedData) as Tenant;
     }
 
-    console.log(
+    this.logger.log(
       `Tenant data for ${tenantId} not in cache. Fetching from master DB.`,
     );
     const tenantRepo = this.masterConnection.getRepository(Tenant);
