@@ -28,7 +28,7 @@
         <div style="display: flex; gap: 12px">
           <button @click="openRegisterModal" class="btn btn-primary">Register New Responder</button>
           <button @click="refreshResponders" class="btn btn-secondary">
-            {{ loading ? 'Refreshing...' : 'Refresh' }}
+            {{ loading ? "Refreshing..." : "Refresh" }}
           </button>
         </div>
       </div>
@@ -54,6 +54,7 @@
               <th>IP Address</th>
               <th>Token</th>
               <th>Created</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -64,7 +65,7 @@
                   class="status-badge"
                   :class="formatters.formatStatus('healthy', responder.lastSeen).class"
                 >
-                  {{ formatters.formatStatus('healthy', responder.lastSeen).text }}
+                  {{ formatters.formatStatus("healthy", responder.lastSeen).text }}
                 </span>
               </td>
               <td>
@@ -85,6 +86,30 @@
                 </code>
               </td>
               <td>{{ formatters.formatRelativeTime(responder.createdAt) }}</td>
+              <td>
+                <div class="actions-cell">
+                  <button
+                    @click="confirmDeregister(responder)"
+                    class="btn-action btn-danger"
+                    :disabled="deregisteringId === responder.id"
+                    :title="`Deregister responder ${responder.id}`"
+                  >
+                    <svg
+                      v-if="deregisteringId !== responder.id"
+                      width="16"
+                      height="16"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
+                      />
+                    </svg>
+                    <div v-else class="mini-spinner"></div>
+                    {{ deregisteringId === responder.id ? "Removing..." : "Deregister" }}
+                  </button>
+                </div>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -122,6 +147,80 @@
               style="padding: 6px 12px; font-size: 12px"
             >
               Next
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Deregister Confirmation Modal -->
+      <div v-if="showDeregisterModal" class="modal-overlay" @click="closeDeregisterModal">
+        <div class="modal-content deregister-modal" @click.stop>
+          <div class="modal-header">
+            <h3>Confirm Deregistration</h3>
+            <button @click="closeDeregisterModal" class="modal-close">&times;</button>
+          </div>
+
+          <div class="modal-body">
+            <div class="warning-container">
+              <div class="warning-icon">
+                <svg width="48" height="48" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
+                </svg>
+              </div>
+              <div class="warning-content">
+                <h4>Are you sure you want to deregister this responder?</h4>
+                <p>
+                  This action will permanently remove the responder from your AIR Server network.
+                </p>
+
+                <div v-if="responderToDeregister" class="responder-details">
+                  <div class="detail-row">
+                    <span class="detail-label">ID:</span>
+                    <span class="detail-value">{{ responderToDeregister.id }}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Operating System:</span>
+                    <span class="detail-value">{{ responderToDeregister.operatingSystem }}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">IP Address:</span>
+                    <span class="detail-value">{{ responderToDeregister.ipAddress }}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Status:</span>
+                    <span
+                      class="status-badge"
+                      :class="
+                        formatters.formatStatus('healthy', responderToDeregister.lastSeen).class
+                      "
+                    >
+                      {{ formatters.formatStatus("healthy", responderToDeregister.lastSeen).text }}
+                    </span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Last Seen:</span>
+                    <span class="detail-value">{{
+                      formatters.formatRelativeTime(responderToDeregister.lastSeen)
+                    }}</span>
+                  </div>
+                </div>
+
+                <div class="warning-note">
+                  <strong>Warning:</strong> This action cannot be undone. Any pending jobs assigned
+                  to this responder may fail.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button @click="closeDeregisterModal" class="btn btn-secondary">Cancel</button>
+            <button
+              @click="deregisterResponder"
+              class="btn btn-danger"
+              :disabled="deregisteringId !== null"
+            >
+              {{ deregisteringId ? "Deregistering..." : "Deregister Responder" }}
             </button>
           </div>
         </div>
@@ -203,7 +302,7 @@
                     <svg v-else width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
                     </svg>
-                    {{ tokenCopied ? 'Copied!' : 'Copy' }}
+                    {{ tokenCopied ? "Copied!" : "Copy" }}
                   </button>
                 </div>
               </div>
@@ -253,162 +352,209 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '../stores/auth'
-import { respondersService } from '../services/responders'
-import { formatters } from '../utils/formatters'
-import type { Responder, PaginationMeta } from '../types'
+import { ref, onMounted, onUnmounted } from "vue";
+import { useRouter } from "vue-router";
+import { useAuthStore } from "../stores/auth";
+import { useNotifications } from "../composables/useNotifications";
+import { respondersService } from "../services/responders";
+import { formatters } from "../utils/formatters";
+import type { Responder, PaginationMeta } from "../types";
 
-const router = useRouter()
-const authStore = useAuthStore()
+const router = useRouter();
+const authStore = useAuthStore();
+const { showSuccess, showError, showWarning } = useNotifications();
 
-const responders = ref<Responder[]>([])
-const meta = ref<PaginationMeta | null>(null)
-const loading = ref<boolean>(false)
-const currentPage = ref<number>(1)
-const itemsPerPage = ref<number>(20)
+const responders = ref<Responder[]>([]);
+const meta = ref<PaginationMeta | null>(null);
+const loading = ref<boolean>(false);
+const currentPage = ref<number>(1);
+const itemsPerPage = ref<number>(20);
 
 // Register modal state
-const showRegisterModal = ref<boolean>(false)
-const enrollmentToken = ref<string>('')
-const generatingToken = ref<boolean>(false)
-const tokenCopied = ref<boolean>(false)
-const timeLeft = ref<number>(600) // 10 minutes in seconds
-const countdownInterval = ref<NodeJS.Timeout | null>(null)
+const showRegisterModal = ref<boolean>(false);
+const enrollmentToken = ref<string>("");
+const generatingToken = ref<boolean>(false);
+const tokenCopied = ref<boolean>(false);
+const timeLeft = ref<number>(600); // 10 minutes in seconds
+const countdownInterval = ref<NodeJS.Timeout | null>(null);
+
+// Deregister modal state
+const showDeregisterModal = ref<boolean>(false);
+const responderToDeregister = ref<Responder | null>(null);
+const deregisteringId = ref<number | null>(null);
 
 const handleLogout = (): void => {
-  authStore.logout()
-  router.push('/login')
-}
+  authStore.logout();
+  router.push("/login");
+};
 
 const loadResponders = async (page: number = 1): Promise<void> => {
   try {
-    loading.value = true
-    const response = await respondersService.getResponders(page, itemsPerPage.value)
-    responders.value = response.data
-    meta.value = response.meta
-    currentPage.value = page
+    loading.value = true;
+    const response = await respondersService.getResponders(page, itemsPerPage.value);
+    responders.value = response.data;
+    meta.value = response.meta;
+    currentPage.value = page;
   } catch (error: any) {
-    console.error('Failed to load responders:', error)
+    console.error("Failed to load responders:", error);
+    showError("Failed to load responders. Please try again.", "Loading Error");
     if (error.status === 401) {
-      authStore.handleAuthError()
+      authStore.handleAuthError();
     }
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const loadPage = (page: number): void => {
   if (page >= 1 && meta.value && page <= meta.value.totalPages) {
-    loadResponders(page)
+    loadResponders(page);
   }
-}
+};
 
 const refreshResponders = (): void => {
-  loadResponders(currentPage.value)
-}
+  loadResponders(currentPage.value);
+};
 
+// Register modal methods
 const openRegisterModal = (): void => {
-  showRegisterModal.value = true
-  enrollmentToken.value = ''
-  generatingToken.value = false
-  tokenCopied.value = false
-  timeLeft.value = 600
-}
+  showRegisterModal.value = true;
+  enrollmentToken.value = "";
+  generatingToken.value = false;
+  tokenCopied.value = false;
+  timeLeft.value = 600;
+};
 
 const closeRegisterModal = (): void => {
-  showRegisterModal.value = false
-  enrollmentToken.value = ''
-  tokenCopied.value = false
+  showRegisterModal.value = false;
+  enrollmentToken.value = "";
+  tokenCopied.value = false;
 
   // Clear countdown interval
   if (countdownInterval.value) {
-    clearInterval(countdownInterval.value)
-    countdownInterval.value = null
+    clearInterval(countdownInterval.value);
+    countdownInterval.value = null;
   }
 
   // Refresh responders list when modal closes
-  refreshResponders()
-}
+  refreshResponders();
+};
 
 const generateToken = async (): Promise<void> => {
   try {
-    generatingToken.value = true
-    const response = await respondersService.generateEnrollmentToken()
-    enrollmentToken.value = response.enrollmentToken
-    timeLeft.value = 600 // Reset to 10 minutes
-    startCountdown()
+    generatingToken.value = true;
+    const response = await respondersService.generateEnrollmentToken();
+    enrollmentToken.value = response.enrollmentToken;
+    timeLeft.value = 600; // Reset to 10 minutes
+    startCountdown();
+    showSuccess("Enrollment token generated successfully!", "Token Generated");
   } catch (error: any) {
-    console.error('Failed to generate enrollment token:', error)
-    alert(`Failed to generate token: ${error.message}`)
+    console.error("Failed to generate enrollment token:", error);
+    showError(`Failed to generate token: ${error.message}`, "Generation Failed");
   } finally {
-    generatingToken.value = false
+    generatingToken.value = false;
   }
-}
+};
 
 const generateNewToken = async (): Promise<void> => {
   // Clear existing countdown
   if (countdownInterval.value) {
-    clearInterval(countdownInterval.value)
-    countdownInterval.value = null
+    clearInterval(countdownInterval.value);
+    countdownInterval.value = null;
   }
 
-  enrollmentToken.value = ''
-  tokenCopied.value = false
-  await generateToken()
-}
+  enrollmentToken.value = "";
+  tokenCopied.value = false;
+  await generateToken();
+};
 
 const copyToken = async (): Promise<void> => {
   try {
-    await navigator.clipboard.writeText(enrollmentToken.value)
-    tokenCopied.value = true
+    await navigator.clipboard.writeText(enrollmentToken.value);
+    tokenCopied.value = true;
+    showSuccess("Token copied to clipboard!", "Copied");
     setTimeout(() => {
-      tokenCopied.value = false
-    }, 2000)
+      tokenCopied.value = false;
+    }, 2000);
   } catch (error) {
-    console.error('Failed to copy token:', error)
+    console.error("Failed to copy token:", error);
     // Fallback for older browsers
-    const textArea = document.createElement('textarea')
-    textArea.value = enrollmentToken.value
-    document.body.appendChild(textArea)
-    textArea.select()
-    document.execCommand('copy')
-    document.body.removeChild(textArea)
-    tokenCopied.value = true
+    const textArea = document.createElement("textarea");
+    textArea.value = enrollmentToken.value;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand("copy");
+    document.body.removeChild(textArea);
+    tokenCopied.value = true;
+    showSuccess("Token copied to clipboard!", "Copied");
     setTimeout(() => {
-      tokenCopied.value = false
-    }, 2000)
+      tokenCopied.value = false;
+    }, 2000);
   }
-}
+};
 
 const startCountdown = (): void => {
   countdownInterval.value = setInterval(() => {
-    timeLeft.value--
+    timeLeft.value--;
     if (timeLeft.value <= 0) {
-      clearInterval(countdownInterval.value!)
-      countdownInterval.value = null
-      enrollmentToken.value = ''
-      alert('Enrollment token has expired. Please generate a new one.')
+      clearInterval(countdownInterval.value!);
+      countdownInterval.value = null;
+      enrollmentToken.value = "";
+      showWarning("Enrollment token has expired. Please generate a new one.", "Token Expired");
     }
-  }, 1000)
-}
+  }, 1000);
+};
 
 const formatTime = (seconds: number): string => {
-  const minutes = Math.floor(seconds / 60)
-  const remainingSeconds = seconds % 60
-  return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`
-}
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return `${minutes.toString().padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
+};
+
+// Deregister methods
+const confirmDeregister = (responder: Responder): void => {
+  responderToDeregister.value = responder;
+  showDeregisterModal.value = true;
+};
+
+const closeDeregisterModal = (): void => {
+  showDeregisterModal.value = false;
+  responderToDeregister.value = null;
+};
+
+const deregisterResponder = async (): Promise<void> => {
+  if (!responderToDeregister.value) return;
+
+  try {
+    deregisteringId.value = responderToDeregister.value.id;
+    await respondersService.deregisterResponder(responderToDeregister.value.id);
+
+    // Show success message
+    showSuccess(
+      `Responder ${responderToDeregister.value.id} has been successfully removed from your network.`,
+      "Responder Deregistered",
+    );
+
+    // Close modal and refresh list
+    closeDeregisterModal();
+    refreshResponders();
+  } catch (error: any) {
+    console.error("Failed to deregister responder:", error);
+    showError(`Failed to deregister responder: ${error.message}`, "Deregistration Failed");
+  } finally {
+    deregisteringId.value = null;
+  }
+};
 
 onMounted(() => {
-  loadResponders()
-})
+  loadResponders();
+});
 
 onUnmounted(() => {
   if (countdownInterval.value) {
-    clearInterval(countdownInterval.value)
+    clearInterval(countdownInterval.value);
   }
-})
+});
 </script>
 
 <style scoped>
@@ -416,6 +562,51 @@ onUnmounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.actions-cell {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.btn-action {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.btn-action:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-danger {
+  background-color: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background-color: #fecaca;
+  border-color: #f87171;
+}
+
+.mini-spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
 .modal-overlay {
@@ -443,6 +634,10 @@ onUnmounted(() => {
 
 .register-modal {
   max-width: 600px;
+}
+
+.deregister-modal {
+  max-width: 550px;
 }
 
 .modal-header {
@@ -495,6 +690,81 @@ onUnmounted(() => {
   border-radius: 0 0 12px 12px;
 }
 
+.warning-container {
+  display: flex;
+  gap: 16px;
+}
+
+.warning-icon {
+  width: 64px;
+  height: 64px;
+  background-color: #fef3c7;
+  color: #d97706;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.warning-content {
+  flex: 1;
+}
+
+.warning-content h4 {
+  margin: 0 0 12px;
+  color: #1f2937;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.warning-content p {
+  margin: 0 0 20px;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.responder-details {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.detail-row:last-child {
+  margin-bottom: 0;
+}
+
+.detail-label {
+  font-weight: 500;
+  color: #374151;
+  font-size: 14px;
+}
+
+.detail-value {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.warning-note {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  padding: 12px;
+  color: #991b1b;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Register modal styles (keeping existing styles) */
 .register-info {
   text-align: center;
   padding: 20px 0;
@@ -570,7 +840,7 @@ onUnmounted(() => {
 
 .token-input {
   flex: 1;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
   font-size: 16px;
   font-weight: 600;
   letter-spacing: 2px;
@@ -614,7 +884,7 @@ onUnmounted(() => {
 .countdown-timer {
   font-size: 32px;
   font-weight: bold;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
   text-align: center;
   margin-bottom: 16px;
   color: #16a34a;
@@ -704,6 +974,20 @@ onUnmounted(() => {
 
   .copy-btn {
     justify-content: center;
+  }
+
+  .warning-container {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .warning-icon {
+    margin: 0 auto;
+  }
+
+  .btn-action {
+    font-size: 11px;
+    padding: 4px 8px;
   }
 }
 </style>

@@ -6,19 +6,27 @@
         <LoadingSpinner message="Loading page..." />
       </template>
     </Suspense>
+
+    <!-- Global Notification Toast -->
+    <NotificationToast ref="notificationToast" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useAuthStore } from './stores/auth'
+import { useNotifications } from './composables/useNotifications'
 import LoadingSpinner from './components/LoadingSpinner.vue'
+import NotificationToast from './components/NotificationToast.vue'
 
 const authStore = useAuthStore()
+const { setNotificationComponent } = useNotifications()
+const notificationToast = ref()
 
 // Initialize auth state from localStorage
 onMounted(() => {
   authStore.initializeAuth()
+  setNotificationComponent(notificationToast.value)
 })
 </script>
 

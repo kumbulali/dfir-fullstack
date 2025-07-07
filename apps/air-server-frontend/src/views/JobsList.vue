@@ -28,7 +28,7 @@
         <div style="display: flex; gap: 12px">
           <button @click="openCreateJobModal" class="btn btn-primary">Create Job</button>
           <button @click="refreshJobs" class="btn btn-secondary">
-            {{ loading ? 'Refreshing...' : 'Refresh' }}
+            {{ loading ? "Refreshing..." : "Refresh" }}
           </button>
         </div>
       </div>
@@ -81,7 +81,7 @@
                       :class="formatters.formatStatus('healthy', job.responder.lastSeen).class"
                       style="font-size: 10px; padding: 2px 6px"
                     >
-                      {{ formatters.formatStatus('healthy', job.responder.lastSeen).text }}
+                      {{ formatters.formatStatus("healthy", job.responder.lastSeen).text }}
                     </span>
                   </div>
                 </div>
@@ -162,17 +162,7 @@
                   :value="responder.id"
                 >
                   {{ responder.id }} - {{ responder.operatingSystem }} ({{ responder.ipAddress }}) -
-                  <span
-                    :style="{
-                      color:
-                        formatters.formatStatus('healthy', responder.lastSeen).class ===
-                        'status-online'
-                          ? '#10b981'
-                          : '#ef4444',
-                    }"
-                  >
-                    {{ formatters.formatStatus('healthy', responder.lastSeen).text }}
-                  </span>
+                  {{ formatters.formatStatus("healthy", responder.lastSeen).text }}
                 </option>
               </select>
             </div>
@@ -208,7 +198,7 @@
                 Cancel
               </button>
               <button type="submit" class="btn btn-primary" :disabled="creatingJob">
-                {{ creatingJob ? 'Creating...' : 'Create Job' }}
+                {{ creatingJob ? "Creating..." : "Create Job" }}
               </button>
             </div>
           </form>
@@ -219,118 +209,124 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '../stores/auth'
-import { jobsService } from '../services/jobs'
-import { respondersService } from '../services/responders'
-import { formatters } from '../utils/formatters'
-import type { Job, JobForm, PaginationMeta, Responder } from '../types'
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { useAuthStore } from "../stores/auth";
+import { jobsService } from "../services/jobs";
+import { respondersService } from "../services/responders";
+import { formatters } from "../utils/formatters";
+import type { Job, JobForm, PaginationMeta, Responder } from "../types";
+import { useNotifications } from "../composables/useNotifications";
 
-const router = useRouter()
-const authStore = useAuthStore()
+const router = useRouter();
+const authStore = useAuthStore();
 
-const jobs = ref<Job[]>([])
-const meta = ref<PaginationMeta | null>(null)
-const loading = ref<boolean>(false)
-const showCreateModal = ref<boolean>(false)
-const creatingJob = ref<boolean>(false)
-const availableResponders = ref<Responder[]>([])
-const currentPage = ref<number>(1)
-const itemsPerPage = ref<number>(20)
+const jobs = ref<Job[]>([]);
+const meta = ref<PaginationMeta | null>(null);
+const loading = ref<boolean>(false);
+const showCreateModal = ref<boolean>(false);
+const creatingJob = ref<boolean>(false);
+const availableResponders = ref<Responder[]>([]);
+const currentPage = ref<number>(1);
+const itemsPerPage = ref<number>(20);
 
 const jobForm = ref<JobForm>({
   responderId: null,
-  command: '',
-  args: '[]',
-})
+  command: "",
+  args: "[]",
+});
+
+const { showSuccess, showError } = useNotifications();
 
 const handleLogout = (): void => {
-  authStore.logout()
-  router.push('/login')
-}
+  authStore.logout();
+  router.push("/login");
+};
 
 const loadJobs = async (page: number = 1): Promise<void> => {
   try {
-    loading.value = true
-    const response = await jobsService.getJobs(page, itemsPerPage.value)
-    jobs.value = response.data
-    meta.value = response.meta
-    currentPage.value = page
+    loading.value = true;
+    const response = await jobsService.getJobs(page, itemsPerPage.value);
+    jobs.value = response.data;
+    meta.value = response.meta;
+    currentPage.value = page;
   } catch (error: any) {
-    console.error('Failed to load jobs:', error)
+    console.error("Failed to load jobs:", error);
     if (error.status === 401) {
-      authStore.handleAuthError()
+      authStore.handleAuthError();
     }
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const loadPage = (page: number): void => {
   if (page >= 1 && meta.value && page <= meta.value.totalPages) {
-    loadJobs(page)
+    loadJobs(page);
   }
-}
+};
 
 const refreshJobs = (): void => {
-  loadJobs(currentPage.value)
-}
+  loadJobs(currentPage.value);
+};
 
 const loadResponders = async (): Promise<void> => {
   try {
     // Load all responders (both healthy and unhealthy) for selection
-    const responders = await respondersService.getAllResponders()
-    availableResponders.value = responders
+    const responders = await respondersService.getAllResponders();
+    availableResponders.value = responders;
   } catch (error) {
-    console.error('Failed to load responders:', error)
+    console.error("Failed to load responders:", error);
   }
-}
+};
 
 const openCreateJobModal = async (): Promise<void> => {
-  showCreateModal.value = true
+  showCreateModal.value = true;
   jobForm.value = {
     responderId: null,
-    command: '',
-    args: '[]',
-  }
-  await loadResponders()
-}
+    command: "",
+    args: "[]",
+  };
+  await loadResponders();
+};
 
 const closeCreateModal = (): void => {
-  showCreateModal.value = false
-}
+  showCreateModal.value = false;
+};
 
 const createJob = async (): Promise<void> => {
-  if (!jobForm.value.responderId) return
+  if (!jobForm.value.responderId) return;
 
   try {
-    creatingJob.value = true
+    creatingJob.value = true;
 
-    const parsedArgs = formatters.parseArgs(jobForm.value.args)
+    const parsedArgs = formatters.parseArgs(jobForm.value.args);
 
     const response = await jobsService.createJob({
       responderId: jobForm.value.responderId,
       command: jobForm.value.command,
       args: parsedArgs,
-    })
+    });
 
-    closeCreateModal()
-    alert(`Job created successfully! Job ID: ${response.jobId}`)
+    closeCreateModal();
+    showSuccess(
+      `Job has been created and assigned to responder ${jobForm.value.responderId}. The responder will execute the command shortly.`,
+      `Job Created (ID: ${response.jobId})`,
+    );
 
     // Refresh the jobs list
-    await loadJobs(currentPage.value)
+    await loadJobs(currentPage.value);
   } catch (error: any) {
-    console.error('Failed to create job:', error)
-    alert(`Failed to create job: ${error.message}`)
+    console.error("Failed to create job:", error);
+    showError(`Failed to create job: ${error.message}`, "Job Creation Failed");
   } finally {
-    creatingJob.value = false
+    creatingJob.value = false;
   }
-}
+};
 
 onMounted(() => {
-  loadJobs()
-})
+  loadJobs();
+});
 </script>
 
 <style scoped>

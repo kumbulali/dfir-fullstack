@@ -28,4 +28,8 @@ export const respondersService = {
   async generateEnrollmentToken(): Promise<{ enrollmentToken: string }> {
     return respondersApi.post<{ enrollmentToken: string }>('/responders/token')
   },
+
+  async deregisterResponder(responderId: number): Promise<void> {
+    return respondersApi.delete(`/responders/${responderId}`)
+  },
 }
