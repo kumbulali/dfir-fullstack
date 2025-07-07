@@ -1,68 +1,31 @@
-import type { Responder, JobForm } from '../types'
-
-interface AssignJobResponse {
-  success: boolean
-  message: string
-}
+import { respondersApi } from './api'
+import type { Responder, PaginatedResponse } from '../types'
+import { isResponderHealthy } from '../utils/formatters'
 
 export const respondersService = {
-  async getResponders(): Promise<Responder[]> {
-    // Mock data - replace with actual API call
-    const mockResponders: Responder[] = [
-      {
-        id: 1,
-        name: 'Responder-001',
-        status: 'online',
-        lastSeen: new Date().toISOString(),
-        operatingSystem: 'Windows 10',
-        ipAddress: '192.168.1.100',
-        assignedJobs: 3,
-      },
-      {
-        id: 2,
-        name: 'Responder-002',
-        status: 'offline',
-        lastSeen: new Date(Date.now() - 300000).toISOString(),
-        operatingSystem: 'Ubuntu 20.04',
-        ipAddress: '192.168.1.101',
-        assignedJobs: 1,
-      },
-      {
-        id: 3,
-        name: 'Responder-003',
-        status: 'online',
-        lastSeen: new Date().toISOString(),
-        operatingSystem: 'macOS Big Sur',
-        ipAddress: '192.168.1.102',
-        assignedJobs: 5,
-      },
-      {
-        id: 4,
-        name: 'Responder-004',
-        status: 'online',
-        lastSeen: new Date(Date.now() - 60000).toISOString(),
-        operatingSystem: 'Windows 11',
-        ipAddress: '192.168.1.103',
-        assignedJobs: 2,
-      },
-    ]
-
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    return mockResponders
-
-    // Actual API call (uncomment when ready)
-    // return api.get<Responder[]>('/responders')
+  async getResponders(page = 1, limit = 50): Promise<PaginatedResponse<Responder>> {
+    return respondersApi.get<PaginatedResponse<Responder>>(
+      `/responders?page=${page}&limit=${limit}`,
+    )
   },
 
-  async assignJob(
-    responderId: number,
-    jobData: Omit<JobForm, 'assignedTo'>,
-  ): Promise<AssignJobResponse> {
-    // Mock response
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    return { success: true, message: 'Job assigned successfully' }
+  async getAllResponders(): Promise<Responder[]> {
+    // Get all responders for dropdown selection
+    const response = await respondersApi.get<PaginatedResponse<Responder>>(
+      `/responders?page=1&limit=1000`,
+    )
+    return response.data
+  },
 
-    // Actual API call (uncomment when ready)
-    // return api.post<AssignJobResponse>(`/responders/${responderId}/assign-job`, jobData)
+  async getHealthyResponders(): Promise<Responder[]> {
+    // Get all responders and filter for healthy ones based on lastSeen
+    const response = await respondersApi.get<PaginatedResponse<Responder>>(
+      `/responders?page=1&limit=1000`,
+    )
+    return response.data.filter((responder) => isResponderHealthy(responder.lastSeen))
+  },
+
+  async generateEnrollmentToken(): Promise<{ enrollmentToken: string }> {
+    return respondersApi.post<{ enrollmentToken: string }>('/responders/token')
   },
 }

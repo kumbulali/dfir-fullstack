@@ -1,10 +1,11 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
-import UserLogin from '../views/UserLogin.vue'
-import MainDashboard from '../views/MainDashboard.vue'
-import RespondersList from '../views/RespondersList.vue'
-import JobsList from '../views/JobsList.vue'
+// Use dynamic imports for better code splitting
+const UserLogin = () => import('../views/UserLogin.vue')
+const MainDashboard = () => import('../views/MainDashboard.vue')
+const RespondersList = () => import('../views/RespondersList.vue')
+const JobsList = () => import('../views/JobsList.vue')
 
 const routes: RouteRecordRaw[] = [
   {
@@ -38,8 +39,13 @@ const router = createRouter({
   routes,
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
+
+  // Wait for auth store to initialize if needed
+  if (!authStore.user && !authStore.token) {
+    authStore.initializeAuth()
+  }
 
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next('/login')

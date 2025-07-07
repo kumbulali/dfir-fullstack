@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import { TenantConnectionManager } from "@app/common/database/tenant-connection.manager";
 import { BatchUpdateRespondersCommand } from "../impl/batch-update-responders.command";
 import { Logger } from "@nestjs/common";
-import { Responder, ResponderStatus } from "@app/common";
+import { Responder } from "@app/common";
 
 @CommandHandler(BatchUpdateRespondersCommand)
 export class BatchUpdateRespondersHandler
@@ -27,7 +27,6 @@ export class BatchUpdateRespondersHandler
         updates.map((update) => ({
           id: update.id,
           lastSeen: new Date(update.lastSeen),
-          status: ResponderStatus.HEALTHY,
         })),
         { chunk: 100 },
       );

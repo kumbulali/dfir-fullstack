@@ -14,6 +14,19 @@ export const storageManager = {
     localStorage.removeItem('air_server_token')
   },
 
+  // Tenant ID management
+  setTenantId(tenantId: string): void {
+    localStorage.setItem('air_server_tenant_id', tenantId)
+  },
+
+  getTenantId(): string | null {
+    return localStorage.getItem('air_server_tenant_id')
+  },
+
+  removeTenantId(): void {
+    localStorage.removeItem('air_server_tenant_id')
+  },
+
   // User management
   setUser(user: User): void {
     localStorage.setItem('air_server_user', JSON.stringify(user))
@@ -32,6 +45,7 @@ export const storageManager = {
   clear(): void {
     localStorage.removeItem('air_server_token')
     localStorage.removeItem('air_server_user')
+    localStorage.removeItem('air_server_tenant_id')
   },
 
   // Generic storage methods

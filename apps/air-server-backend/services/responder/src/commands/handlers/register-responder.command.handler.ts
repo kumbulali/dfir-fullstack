@@ -11,7 +11,6 @@ import {
   AUTH_SERVICE,
   EnrollmentToken,
   Responder,
-  ResponderStatus,
   TenantConnectionManager,
 } from "@app/common";
 import { EmqxService } from "../../emqx.service";
@@ -62,7 +61,6 @@ export class RegisterResponderHandler
         operatingSystem: operatingSystem,
         ipAddress: ipAddress,
         lastSeen: new Date(),
-        status: ResponderStatus.HEALTHY,
       }),
     );
 

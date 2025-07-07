@@ -16,42 +16,106 @@
     </nav>
 
     <div class="container" style="padding-top: 32px">
-      <h1 style="margin-bottom: 32px; color: #1f2937">Dashboard</h1>
+      <div class="dashboard-header">
+        <h1>Dashboard</h1>
+        <button @click="refreshData" class="btn btn-primary" :disabled="loading">
+          {{ loading ? 'Refreshing...' : 'Refresh Data' }}
+        </button>
+      </div>
 
       <!-- Stats Cards -->
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-number">{{ stats.responders.online }}</div>
-          <div class="stat-label">Online Responders</div>
+          <div class="stat-icon" style="background-color: #10b981">
+            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+              />
+            </svg>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{{ stats.responders.online }}</div>
+            <div class="stat-label">Healthy Responders</div>
+          </div>
         </div>
+
         <div class="stat-card">
-          <div class="stat-number">{{ stats.responders.total }}</div>
-          <div class="stat-label">Total Responders</div>
+          <div class="stat-icon" style="background-color: #ef4444">
+            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"
+              />
+            </svg>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{{ stats.responders.total - stats.responders.online }}</div>
+            <div class="stat-label">Unhealthy Responders</div>
+          </div>
         </div>
+
         <div class="stat-card">
-          <div class="stat-number">{{ stats.jobs.total }}</div>
-          <div class="stat-label">Total Jobs</div>
+          <div class="stat-icon" style="background-color: #3b82f6">
+            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+              <path
+                d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zM4 18v-6h2.5l6 6H4zm16.5-9.5L19 7l-7.5 7.5L9 12l-2 2 5.5 5.5L22 10l-1.5-1.5z"
+              />
+            </svg>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{{ stats.responders.total }}</div>
+            <div class="stat-label">Total Responders</div>
+          </div>
         </div>
+
         <div class="stat-card">
-          <div class="stat-number">{{ stats.jobs.completed }}</div>
-          <div class="stat-label">Completed Jobs</div>
+          <div class="stat-icon" style="background-color: #f59e0b">
+            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+              <path
+                d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"
+              />
+            </svg>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{{ stats.jobs.total }}</div>
+            <div class="stat-label">Total Jobs</div>
+          </div>
         </div>
       </div>
 
-      <!-- Charts -->
-      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 32px; margin-bottom: 32px">
-        <div class="card">
-          <h3 style="margin-bottom: 24px; color: #1f2937">Responder Activity</h3>
-          <div class="chart-container">
-            <canvas ref="responderChart" width="400" height="200"></canvas>
+      <!-- Charts Section -->
+      <div class="charts-grid">
+        <!-- Responder Status Distribution -->
+        <div class="card chart-card">
+          <div class="chart-header">
+            <h3>Responder Status</h3>
+            <div class="chart-actions">
+              <button @click="refreshResponderChart" class="btn-icon" title="Refresh">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                  <path
+                    d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
+          <DoughnutChart :data="responderStatusChartData" />
         </div>
 
-        <div class="card">
-          <h3 style="margin-bottom: 24px; color: #1f2937">Job Status Distribution</h3>
-          <div class="chart-container">
-            <canvas ref="jobsChart" width="300" height="300"></canvas>
+        <!-- Job Status Distribution -->
+        <div class="card chart-card">
+          <div class="chart-header">
+            <h3>Job Status Distribution</h3>
+            <div class="chart-actions">
+              <button @click="refreshJobsChart" class="btn-icon" title="Refresh">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                  <path
+                    d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
+          <DoughnutChart :data="jobsChartData" />
         </div>
       </div>
     </div>
@@ -59,22 +123,45 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { dashboardService } from '../services/dashboard'
-import type { DashboardStats } from '../types'
+import DoughnutChart from '../components/charts/DoughnutChart.vue'
+import type { DashboardStats, PieChartData } from '../types'
 
 const router = useRouter()
 const authStore = useAuthStore()
 
+const loading = ref<boolean>(false)
 const stats = ref<DashboardStats>({
   responders: { online: 0, total: 0 },
   jobs: { total: 0, completed: 0, pending: 0, failed: 0 },
 })
 
-const responderChart = ref<HTMLCanvasElement | null>(null)
-const jobsChart = ref<HTMLCanvasElement | null>(null)
+const responderStatusChartData = ref<PieChartData>({
+  labels: ['Healthy', 'Unhealthy'],
+  datasets: [
+    {
+      data: [0, 0],
+      backgroundColor: ['#10b981', '#ef4444'],
+      borderWidth: 3,
+      borderColor: '#ffffff',
+    },
+  ],
+})
+
+const jobsChartData = ref<PieChartData>({
+  labels: ['Completed', 'Pending', 'Failed'],
+  datasets: [
+    {
+      data: [0, 0, 0],
+      backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+      borderWidth: 3,
+      borderColor: '#ffffff',
+    },
+  ],
+})
 
 const handleLogout = (): void => {
   authStore.logout()
@@ -85,190 +172,193 @@ const loadStats = async (): Promise<void> => {
   try {
     const data = await dashboardService.getStats()
     stats.value = data
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to load stats:', error)
-  }
-}
-
-const drawResponderChart = async (): Promise<void> => {
-  try {
-    const chartData = await dashboardService.getResponderChart()
-    const canvas = responderChart.value
-    if (!canvas) return
-
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    // Simple line chart implementation
-    const width = canvas.width
-    const height = canvas.height
-    const padding = 40
-
-    ctx.clearRect(0, 0, width, height)
-
-    // Draw grid
-    ctx.strokeStyle = '#e5e7eb'
-    ctx.lineWidth = 1
-
-    for (let i = 0; i <= 5; i++) {
-      const y = padding + ((height - 2 * padding) * i) / 5
-      ctx.beginPath()
-      ctx.moveTo(padding, y)
-      ctx.lineTo(width - padding, y)
-      ctx.stroke()
+    if (error.status === 401) {
+      authStore.handleAuthError()
     }
-
-    // Draw online responders line
-    ctx.strokeStyle = '#3b82f6'
-    ctx.lineWidth = 3
-    ctx.beginPath()
-
-    const onlineData = chartData.datasets[0].data
-    for (let i = 0; i < onlineData.length; i++) {
-      const x = padding + ((width - 2 * padding) * i) / (onlineData.length - 1)
-      const y = height - padding - ((height - 2 * padding) * onlineData[i]) / 50
-
-      if (i === 0) {
-        ctx.moveTo(x, y)
-      } else {
-        ctx.lineTo(x, y)
-      }
-    }
-    ctx.stroke()
-
-    // Draw labels
-    ctx.fillStyle = '#6b7280'
-    ctx.font = '12px sans-serif'
-    ctx.textAlign = 'center'
-
-    chartData.labels.forEach((label, i) => {
-      const x = padding + ((width - 2 * padding) * i) / (chartData.labels.length - 1)
-      ctx.fillText(label, x, height - 10)
-    })
-  } catch (error) {
-    console.error('Failed to draw responder chart:', error)
   }
 }
 
-const drawJobsChart = async (): Promise<void> => {
+const loadResponderChart = async (): Promise<void> => {
   try {
-    const chartData = await dashboardService.getJobsChart()
-    const canvas = jobsChart.value
-    if (!canvas) return
-
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    // Simple pie chart implementation
-    const centerX = canvas.width / 2
-    const centerY = canvas.height / 2
-    const radius = Math.min(centerX, centerY) - 40
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-
-    const data = chartData.datasets[0].data
-    const colors = chartData.datasets[0].backgroundColor
-    const total = data.reduce((sum, value) => sum + value, 0)
-
-    let currentAngle = -Math.PI / 2
-
-    data.forEach((value, index) => {
-      const sliceAngle = (value / total) * 2 * Math.PI
-
-      ctx.fillStyle = colors[index]
-      ctx.beginPath()
-      ctx.moveTo(centerX, centerY)
-      ctx.arc(centerX, centerY, radius, currentAngle, currentAngle + sliceAngle)
-      ctx.closePath()
-      ctx.fill()
-
-      // Draw label
-      const labelAngle = currentAngle + sliceAngle / 2
-      const labelX = centerX + Math.cos(labelAngle) * (radius * 0.7)
-      const labelY = centerY + Math.sin(labelAngle) * (radius * 0.7)
-
-      ctx.fillStyle = '#ffffff'
-      ctx.font = 'bold 14px sans-serif'
-      ctx.textAlign = 'center'
-      ctx.fillText(value.toString(), labelX, labelY)
-
-      currentAngle += sliceAngle
-    })
+    const data = await dashboardService.getResponderStatusChart()
+    responderStatusChartData.value = data
   } catch (error) {
-    console.error('Failed to draw jobs chart:', error)
+    console.error('Failed to load responder status chart:', error)
   }
 }
 
-onMounted(async () => {
-  await loadStats()
-  await nextTick()
-  drawResponderChart()
-  drawJobsChart()
+const loadJobsChart = async (): Promise<void> => {
+  try {
+    const data = await dashboardService.getJobsChart()
+    jobsChartData.value = data
+  } catch (error) {
+    console.error('Failed to load jobs chart:', error)
+  }
+}
+
+const refreshData = async (): Promise<void> => {
+  loading.value = true
+  try {
+    await Promise.all([loadStats(), loadResponderChart(), loadJobsChart()])
+  } finally {
+    loading.value = false
+  }
+}
+
+const refreshResponderChart = (): void => {
+  loadResponderChart()
+}
+
+const refreshJobsChart = (): void => {
+  loadJobsChart()
+}
+
+onMounted(() => {
+  refreshData()
 })
 </script>
 
 <style scoped>
-.chart-container {
+.dashboard-header {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
+  margin-bottom: 32px;
 }
 
-.activity-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+.dashboard-header h1 {
+  color: #1f2937;
+  margin: 0;
 }
 
-.activity-item {
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f3f4f6;
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 16px;
-  background: #f9fafb;
-  border-radius: 8px;
+  transition: all 0.2s ease;
 }
 
-.activity-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-weight: bold;
-  font-size: 14px;
 }
 
-.activity-content {
+.stat-content {
   flex: 1;
 }
 
-.activity-title {
-  font-weight: 500;
+.stat-number {
+  font-size: 28px;
+  font-weight: bold;
   color: #1f2937;
   margin-bottom: 4px;
 }
 
-.activity-time {
-  font-size: 14px;
+.stat-label {
   color: #6b7280;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.chart-card {
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f3f4f6;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.chart-header h3 {
+  margin: 0;
+  color: #1f2937;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.chart-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-icon {
+  background: none;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 8px;
+  cursor: pointer;
+  color: #6b7280;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-icon:hover {
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+  color: #374151;
+}
+
+@media (max-width: 1024px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 768px) {
-  .navbar-content {
+  .dashboard-header {
     flex-direction: column;
-    height: auto;
-    padding: 16px 0;
+    gap: 16px;
+    align-items: stretch;
   }
 
-  .navbar-nav {
-    margin: 16px 0;
+  .stats-grid {
+    grid-template-columns: 1fr;
   }
 
-  div[style*='grid-template-columns: 2fr 1fr'] {
-    grid-template-columns: 1fr !important;
+  .stat-card {
+    padding: 16px;
+  }
+
+  .chart-card {
+    padding: 16px;
   }
 }
 </style>

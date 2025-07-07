@@ -53,10 +53,20 @@
       </form>
 
       <div class="login-demo">
-        <p><strong>Demo Credentials:</strong></p>
-        <p>Email: admin@example.com</p>
-        <p>Password: password</p>
-        <p>Tenant ID: demo-tenant</p>
+        <p><strong>API Connection Status:</strong></p>
+        <div class="api-status">
+          <div class="status-item">
+            <span class="status-dot" :class="{ online: !networkError }"></span>
+            <span>Network Connection</span>
+          </div>
+        </div>
+        <div class="api-info">
+          <p><strong>Required API Servers:</strong></p>
+          <p>• Auth: http://localhost:3000</p>
+          <p>• Responders: http://localhost:3001</p>
+          <p>• Jobs: http://localhost:3002</p>
+          <p><small>Make sure all servers are running and accessible</small></p>
+        </div>
       </div>
     </div>
   </div>
@@ -79,16 +89,31 @@ const form = ref<LoginCredentials>({
 
 const loading = ref<boolean>(false)
 const error = ref<string>('')
+const networkError = ref<boolean>(false)
 
 const handleLogin = async (): Promise<void> => {
   try {
     loading.value = true
     error.value = ''
+    networkError.value = false
 
     await authStore.login(form.value)
     router.push('/')
   } catch (err: any) {
-    error.value = err.message
+    console.error('Login error:', err)
+
+    if (err.status === 0 || err.message.includes('Network error')) {
+      networkError.value = true
+      error.value =
+        'Cannot connect to API servers. Please ensure they are running on the correct ports.'
+    } else if (err.status === 401) {
+      error.value = 'Invalid credentials. Please check your email, password, and tenant ID.'
+    } else if (err.status === 404) {
+      error.value =
+        'API endpoint not found. Please check if the auth server is running on port 3000.'
+    } else {
+      error.value = err.message || 'Login failed. Please try again.'
+    }
   } finally {
     loading.value = false
   }
@@ -155,5 +180,42 @@ const handleLogin = async (): Promise<void> => {
 
 .login-demo strong {
   color: #374151;
+}
+
+.api-status {
+  margin: 12px 0;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #ef4444;
+}
+
+.status-dot.online {
+  background-color: #10b981;
+}
+
+.api-info {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.api-info p {
+  margin: 4px 0;
+}
+
+.api-info small {
+  color: #9ca3af;
 }
 </style>

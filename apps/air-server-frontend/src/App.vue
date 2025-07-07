@@ -1,17 +1,23 @@
 <template>
   <div id="app">
-    <router-view />
+    <Suspense>
+      <router-view />
+      <template #fallback>
+        <LoadingSpinner message="Loading page..." />
+      </template>
+    </Suspense>
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useAuthStore } from './stores/auth'
+import LoadingSpinner from './components/LoadingSpinner.vue'
 
 const authStore = useAuthStore()
 
+// Initialize auth state from localStorage
 onMounted(() => {
-  // Initialize auth state from localStorage
   authStore.initializeAuth()
 })
 </script>

@@ -38,36 +38,109 @@
       </div>
 
       <div v-else class="card">
-        <table class="table">
+        <div v-if="jobs.length === 0" style="text-align: center; padding: 40px; color: #6b7280">
+          No jobs found
+        </div>
+        <table v-else class="table">
           <thead>
             <tr>
               <th>ID</th>
-              <th>Title</th>
-              <th>Description</th>
+              <th>Command</th>
+              <th>Arguments</th>
               <th>Status</th>
-              <th>Assigned To</th>
+              <th>Responder</th>
               <th>Created</th>
-              <th>Completed</th>
+              <th>Result</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="job in jobs" :key="job.id">
               <td>{{ job.id }}</td>
-              <td>{{ job.title }}</td>
-              <td>{{ job.description }}</td>
+              <td>
+                <code
+                  style="font-size: 12px; background: #f3f4f6; padding: 2px 6px; border-radius: 4px"
+                >
+                  {{ job.command }}
+                </code>
+              </td>
+              <td>{{ formatters.formatArgs(job.args) }}</td>
               <td>
                 <span class="status-badge" :class="formatters.formatStatus(job.status).class">
                   {{ formatters.formatStatus(job.status).text }}
                 </span>
               </td>
-              <td>{{ job.assignedTo }}</td>
+              <td>
+                <div style="font-size: 12px">
+                  <div><strong>ID:</strong> {{ job.responder.id }}</div>
+                  <div><strong>OS:</strong> {{ job.responder.operatingSystem }}</div>
+                  <div><strong>IP:</strong> {{ job.responder.ipAddress }}</div>
+                  <div>
+                    <strong>Status:</strong>
+                    <span
+                      class="status-badge"
+                      :class="formatters.formatStatus('healthy', job.responder.lastSeen).class"
+                      style="font-size: 10px; padding: 2px 6px"
+                    >
+                      {{ formatters.formatStatus('healthy', job.responder.lastSeen).text }}
+                    </span>
+                  </div>
+                </div>
+              </td>
               <td>{{ formatters.formatRelativeTime(job.createdAt) }}</td>
               <td>
-                {{ job.completedAt ? formatters.formatRelativeTime(job.completedAt) : 'N/A' }}
+                <div
+                  v-if="job.resultData"
+                  style="
+                    font-size: 12px;
+                    max-width: 150px;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                  "
+                >
+                  {{ JSON.stringify(job.resultData) }}
+                </div>
+                <span v-else style="color: #6b7280">-</span>
               </td>
             </tr>
           </tbody>
         </table>
+
+        <!-- Pagination -->
+        <div
+          v-if="meta"
+          class="pagination"
+          style="
+            margin-top: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          "
+        >
+          <div style="color: #6b7280; font-size: 14px">
+            Showing {{ meta.itemCount }} of {{ meta.totalItems }} jobs
+          </div>
+          <div style="display: flex; gap: 8px">
+            <button
+              @click="loadPage(meta.currentPage - 1)"
+              :disabled="meta.currentPage <= 1"
+              class="btn btn-secondary"
+              style="padding: 6px 12px; font-size: 12px"
+            >
+              Previous
+            </button>
+            <span style="padding: 6px 12px; color: #374151">
+              Page {{ meta.currentPage }} of {{ meta.totalPages }}
+            </span>
+            <button
+              @click="loadPage(meta.currentPage + 1)"
+              :disabled="meta.currentPage >= meta.totalPages"
+              class="btn btn-secondary"
+              style="padding: 6px 12px; font-size: 12px"
+            >
+              Next
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- Create Job Modal -->
@@ -80,45 +153,54 @@
 
           <form @submit.prevent="createJob" class="modal-body">
             <div class="form-group">
-              <label class="form-label">Job Title</label>
+              <label class="form-label">Responder</label>
+              <select v-model="jobForm.responderId" class="form-input" required>
+                <option :value="null">Select a responder</option>
+                <option
+                  v-for="responder in availableResponders"
+                  :key="responder.id"
+                  :value="responder.id"
+                >
+                  {{ responder.id }} - {{ responder.operatingSystem }} ({{ responder.ipAddress }}) -
+                  <span
+                    :style="{
+                      color:
+                        formatters.formatStatus('healthy', responder.lastSeen).class ===
+                        'status-online'
+                          ? '#10b981'
+                          : '#ef4444',
+                    }"
+                  >
+                    {{ formatters.formatStatus('healthy', responder.lastSeen).text }}
+                  </span>
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Command</label>
               <input
-                v-model="jobForm.title"
+                v-model="jobForm.command"
                 type="text"
                 class="form-input"
-                placeholder="Enter job title"
+                placeholder="e.g., add, subtract, multiply"
                 required
               />
             </div>
 
             <div class="form-group">
-              <label class="form-label">Description</label>
+              <label class="form-label">Arguments (JSON Array)</label>
               <textarea
-                v-model="jobForm.description"
+                v-model="jobForm.args"
                 class="form-input"
                 rows="3"
-                placeholder="Enter job description"
+                placeholder='e.g., [2, 4] or ["param1", "param2"]'
                 required
               ></textarea>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Assign To</label>
-              <select v-model="jobForm.assignedTo" class="form-input" required>
-                <option value="">Select a responder</option>
-                <option value="Responder-001">Responder-001</option>
-                <option value="Responder-002">Responder-002</option>
-                <option value="Responder-003">Responder-003</option>
-                <option value="Responder-004">Responder-004</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Priority</label>
-              <select v-model="jobForm.priority" class="form-input" required>
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-              </select>
+              <small style="color: #6b7280; font-size: 12px">
+                Enter arguments as a JSON array, e.g., [2, 4] for numbers or ["hello", "world"] for
+                strings
+              </small>
             </div>
 
             <div class="modal-footer">
@@ -141,22 +223,26 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { jobsService } from '../services/jobs'
+import { respondersService } from '../services/responders'
 import { formatters } from '../utils/formatters'
-import type { Job, JobForm } from '../types'
+import type { Job, JobForm, PaginationMeta, Responder } from '../types'
 
 const router = useRouter()
 const authStore = useAuthStore()
 
 const jobs = ref<Job[]>([])
+const meta = ref<PaginationMeta | null>(null)
 const loading = ref<boolean>(false)
 const showCreateModal = ref<boolean>(false)
 const creatingJob = ref<boolean>(false)
+const availableResponders = ref<Responder[]>([])
+const currentPage = ref<number>(1)
+const itemsPerPage = ref<number>(20)
 
 const jobForm = ref<JobForm>({
-  title: '',
-  description: '',
-  assignedTo: '',
-  priority: 'medium',
+  responderId: null,
+  command: '',
+  args: '[]',
 })
 
 const handleLogout = (): void => {
@@ -164,30 +250,51 @@ const handleLogout = (): void => {
   router.push('/login')
 }
 
-const loadJobs = async (): Promise<void> => {
+const loadJobs = async (page: number = 1): Promise<void> => {
   try {
     loading.value = true
-    const data = await jobsService.getJobs()
-    jobs.value = data
-  } catch (error) {
+    const response = await jobsService.getJobs(page, itemsPerPage.value)
+    jobs.value = response.data
+    meta.value = response.meta
+    currentPage.value = page
+  } catch (error: any) {
     console.error('Failed to load jobs:', error)
+    if (error.status === 401) {
+      authStore.handleAuthError()
+    }
   } finally {
     loading.value = false
   }
 }
 
-const refreshJobs = (): void => {
-  loadJobs()
+const loadPage = (page: number): void => {
+  if (page >= 1 && meta.value && page <= meta.value.totalPages) {
+    loadJobs(page)
+  }
 }
 
-const openCreateJobModal = (): void => {
+const refreshJobs = (): void => {
+  loadJobs(currentPage.value)
+}
+
+const loadResponders = async (): Promise<void> => {
+  try {
+    // Load all responders (both healthy and unhealthy) for selection
+    const responders = await respondersService.getAllResponders()
+    availableResponders.value = responders
+  } catch (error) {
+    console.error('Failed to load responders:', error)
+  }
+}
+
+const openCreateJobModal = async (): Promise<void> => {
   showCreateModal.value = true
   jobForm.value = {
-    title: '',
-    description: '',
-    assignedTo: '',
-    priority: 'medium',
+    responderId: null,
+    command: '',
+    args: '[]',
   }
+  await loadResponders()
 }
 
 const closeCreateModal = (): void => {
@@ -195,17 +302,27 @@ const closeCreateModal = (): void => {
 }
 
 const createJob = async (): Promise<void> => {
+  if (!jobForm.value.responderId) return
+
   try {
     creatingJob.value = true
 
-    const newJob = await jobsService.createJob(jobForm.value)
-    jobs.value.unshift(newJob)
+    const parsedArgs = formatters.parseArgs(jobForm.value.args)
+
+    const response = await jobsService.createJob({
+      responderId: jobForm.value.responderId,
+      command: jobForm.value.command,
+      args: parsedArgs,
+    })
 
     closeCreateModal()
-    alert('Job created successfully!')
-  } catch (error) {
+    alert(`Job created successfully! Job ID: ${response.jobId}`)
+
+    // Refresh the jobs list
+    await loadJobs(currentPage.value)
+  } catch (error: any) {
     console.error('Failed to create job:', error)
-    alert('Failed to create job. Please try again.')
+    alert(`Failed to create job: ${error.message}`)
   } finally {
     creatingJob.value = false
   }
@@ -281,6 +398,12 @@ onMounted(() => {
   margin-top: 24px;
 }
 
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 @media (max-width: 768px) {
   .table {
     font-size: 12px;
@@ -294,6 +417,11 @@ onMounted(() => {
   .modal-content {
     width: 95%;
     margin: 20px;
+  }
+
+  .pagination {
+    flex-direction: column;
+    gap: 16px;
   }
 }
 </style>

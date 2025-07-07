@@ -3,7 +3,6 @@ import { Inject, Logger } from "@nestjs/common";
 import { Redis } from "ioredis";
 import { HEARTBEAT_PERIOD, REDIS_CLIENT } from "@app/common/constants";
 import { HeartbeatReceivedEvent } from "../impl/heartbeat-received.event";
-import { ResponderStatus } from "@app/common";
 
 @EventsHandler(HeartbeatReceivedEvent)
 export class HeartbeatReceivedHandler
@@ -19,7 +18,6 @@ export class HeartbeatReceivedHandler
 
     try {
       await this.redisClient.hset(redisKey, {
-        status: ResponderStatus.HEALTHY,
         lastSeen: new Date().toISOString(),
         os,
         ip,

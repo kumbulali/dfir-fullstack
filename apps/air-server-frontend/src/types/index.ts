@@ -9,12 +9,15 @@ export interface User {
 export interface LoginCredentials {
   email: string
   password: string
-  tenantId: string
+}
+
+export interface LoginRequest {
+  email: string
+  password: string
 }
 
 export interface LoginResponse {
   accessToken: string
-  user: User
 }
 
 export interface ApiError {
@@ -25,30 +28,56 @@ export interface ApiError {
 
 export interface Responder {
   id: number
-  name: string
-  status: 'online' | 'offline'
-  lastSeen: string
-  operatingSystem: string
+  createdAt: string
+  updatedAt: string
+  token: string
+  password: string
   ipAddress: string
-  assignedJobs: number
+  operatingSystem: string
+  lastSeen: string
+  status: 'healthy' | 'unhealthy'
+  activeJti: string | null
 }
 
 export interface Job {
   id: number
-  title: string
-  description: string
-  status: 'completed' | 'pending' | 'failed'
-  assignedTo: string
   createdAt: string
-  completedAt: string | null
-  priority?: 'low' | 'medium' | 'high'
+  updatedAt: string
+  command: string
+  args: any[]
+  status: 'pending' | 'completed' | 'failed'
+  resultData: any | null
+  responder: Responder
+}
+
+export interface CreateJobRequest {
+  responderId: number
+  command: string
+  args: any[]
+}
+
+export interface CreateJobResponse {
+  jobId: number
+  message: string
 }
 
 export interface JobForm {
-  title: string
-  description: string
-  assignedTo: string
-  priority: 'low' | 'medium' | 'high'
+  responderId: number | null
+  command: string
+  args: string // Will be parsed as JSON
+}
+
+export interface PaginationMeta {
+  totalItems: number
+  itemCount: number
+  itemsPerPage: number
+  totalPages: number
+  currentPage: number
+}
+
+export interface PaginatedResponse<T> {
+  data: T[]
+  meta: PaginationMeta
 }
 
 export interface DashboardStats {
@@ -94,6 +123,6 @@ export interface StatusFormat {
   class: string
 }
 
-export type ResponderStatus = 'online' | 'offline'
-export type JobStatus = 'completed' | 'pending' | 'failed'
+export type ResponderStatus = 'healthy' | 'unhealthy'
+export type JobStatus = 'pending' | 'completed' | 'failed'
 export type JobPriority = 'low' | 'medium' | 'high'
