@@ -42,11 +42,11 @@ export class AssignJobHandler implements ICommandHandler<AssignJobCommand> {
       args,
     };
 
-    const requestTopic = `command/request/${tenantId}/${responder.token}`;
+    const requestTopic = `command/request/${tenantId}/${responder.id}`;
     this.mqttClient.publish(requestTopic, JSON.stringify(payload));
 
     this.logger.log(
-      `Job ${savedJob.id} (${task}) assigned to responder ${responder.token} via EMQX`,
+      `Job ${savedJob.id} (${task}) assigned to responder ${responder.id} via EMQX`,
     );
     return { jobId: savedJob.id, message: "Job assigned successfully." };
   }

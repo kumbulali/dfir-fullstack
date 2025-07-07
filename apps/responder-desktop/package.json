@@ -1,0 +1,44 @@
+{
+  "name": "air-responder-app",
+  "version": "1.0.0",
+  "description": "AIR Responder Desktop Application",
+  "main": "dist/main/index.js",
+  "scripts": {
+    "start": "npm run build && electron .",
+    "build": "npm run build:main && npm run build:renderer",
+    "build:main": "tsc -p tsconfig.main.json",
+    "build:renderer": "webpack --mode production",
+    "watch:renderer": "webpack --mode development --watch",
+    "watch:main": "tsc -p tsconfig.main.json --watch",
+    "electron:start": "wait-on -v -t 60000 -d 2000 file:./dist/main/index.js && electron . --inspect",
+    "dev": "concurrently -k -n \"RENDERER,MAIN,ELECTRON\" -c \"cyan,magenta,blue\" \"npm:watch:renderer\" \"npm:watch:main\" \"npm:electron:start\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.6.2",
+    "mqtt": "^5.3.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "redux": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/mqtt": "^2.5.0",
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.18",
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
+    "css-loader": "^6.8.1",
+    "electron": "^28.1.0",
+    "electron-builder": "^24.9.1",
+    "html-webpack-plugin": "^5.6.0",
+    "style-loader": "^3.3.3",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.3.3",
+    "wait-on": "^7.2.0",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.1"
+  }
+}
