@@ -1,13 +1,29 @@
-import { Controller, Post, Body, Headers, Ip, UseGuards } from "@nestjs/common";
-import { CommandBus } from "@nestjs/cqrs";
+import {
+  Controller,
+  Post,
+  Body,
+  Headers,
+  Ip,
+  UseGuards,
+  Get,
+  Query,
+  ValidationPipe,
+  ClassSerializerInterceptor,
+  UseInterceptors,
+} from "@nestjs/common";
+import { CommandBus, QueryBus } from "@nestjs/cqrs";
 import { RegisterResponderCommand } from "./commands/impl/register-responder.command";
 import { RegisterResponderDto } from "./dtos/register-responder.dto";
 import { CreateEnrollmentTokenCommand } from "./commands/impl/create-enrollment-token.command";
-import { JwtAuthGuard, TenantGuard } from "@app/common";
+import { JwtAuthGuard, PaginationDto, TenantGuard } from "@app/common";
+import { GetRespondersQuery } from "./queries/impl/get-responders.query";
 
 @Controller("responders")
 export class ResponderController {
-  constructor(private readonly commandBus: CommandBus) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
+  ) {}
 
   @UseGuards(TenantGuard)
   @Post("register")
@@ -18,6 +34,19 @@ export class ResponderController {
   ) {
     return this.commandBus.execute(
       new RegisterResponderCommand(tenantId, registerDto, ipAddress),
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  @UseInterceptors(ClassSerializerInterceptor)
+  async getResponders(
+    @Headers("x-tenant-id") tenantId: string,
+    @Query(new ValidationPipe({ transform: true }))
+    paginationDto: PaginationDto,
+  ) {
+    return this.queryBus.execute(
+      new GetRespondersQuery(tenantId, paginationDto),
     );
   }
 

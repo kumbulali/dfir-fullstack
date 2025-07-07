@@ -14,8 +14,10 @@ import { ClientsModule, Transport } from "@nestjs/microservices";
 import { AssignJobHandler } from "./commands/handlers/assign-job.handler";
 import { MqttModule } from "./mqtt/mqtt.module";
 import { SubmitJobResultHandler } from "./commands/handlers/submit-job-result.handler";
+import { GetJobsQueryHandler } from "./queries/handlers/get-jobs.handler";
 
 export const CommandHandlers = [AssignJobHandler, SubmitJobResultHandler];
+export const QueryHandlers = [GetJobsQueryHandler];
 
 @Module({
   imports: [
@@ -55,6 +57,6 @@ export const CommandHandlers = [AssignJobHandler, SubmitJobResultHandler];
     MqttModule.register(),
   ],
   controllers: [JobServiceController],
-  providers: [...CommandHandlers],
+  providers: [...CommandHandlers, ...QueryHandlers],
 })
 export class JobServiceModule {}

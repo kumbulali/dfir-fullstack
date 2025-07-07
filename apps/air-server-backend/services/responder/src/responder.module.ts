@@ -17,12 +17,15 @@ import { CreateEnrollmentTokenHandler } from "./commands/handlers/create-enrollm
 import { ClientsModule, Transport } from "@nestjs/microservices";
 import { ResponderHealthController } from "./responder-health.controller";
 import { BatchUpdateRespondersHandler } from "./commands/handlers/batch-update-responders.handler";
+import { GetRespondersQueryHandler } from "./queries/handlers/get-responders.handler";
 
 export const CommandHandlers = [
   RegisterResponderHandler,
   CreateEnrollmentTokenHandler,
   BatchUpdateRespondersHandler,
 ];
+
+export const QueryHandlers = [GetRespondersQueryHandler];
 
 @Module({
   imports: [
@@ -64,6 +67,6 @@ export const CommandHandlers = [
     ]),
   ],
   controllers: [ResponderController, ResponderHealthController],
-  providers: [EmqxService, ...CommandHandlers],
+  providers: [EmqxService, ...CommandHandlers, ...QueryHandlers],
 })
 export class ResponderModule {}

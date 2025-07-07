@@ -5,17 +5,24 @@ import {
   Headers,
   UseGuards,
   Param,
+  Get,
+  Query,
+  ValidationPipe,
 } from "@nestjs/common";
-import { CommandBus } from "@nestjs/cqrs";
+import { CommandBus, QueryBus } from "@nestjs/cqrs";
 import { AssignJobCommand } from "./commands/impl/assign-job.command";
-import { JwtAuthGuard, ResponderJwtGuard } from "@app/common";
+import { JwtAuthGuard, PaginationDto, ResponderJwtGuard } from "@app/common";
 import { AssignJobDto } from "./dtos/assign-job.dto";
 import { SubmitJobResultDto } from "./dtos/submit-job-result.dto";
 import { SubmitJobResultCommand } from "./commands/impl/submit-job-result.command";
+import { GetJobsQuery } from "./queries/impl/get-jobs.query";
 
 @Controller("jobs")
 export class JobServiceController {
-  constructor(private readonly commandBus: CommandBus) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
+  ) {}
 
   @UseGuards(JwtAuthGuard)
   @Post()
@@ -26,6 +33,16 @@ export class JobServiceController {
     return await this.commandBus.execute(
       new AssignJobCommand(tenantId, assignJobDto),
     );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  async getJobs(
+    @Headers("x-tenant-id") tenantId: string,
+    @Query(new ValidationPipe({ transform: true }))
+    paginationDto: PaginationDto,
+  ) {
+    return this.queryBus.execute(new GetJobsQuery(tenantId, paginationDto));
   }
 
   @UseGuards(ResponderJwtGuard)

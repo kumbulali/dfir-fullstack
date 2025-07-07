@@ -1,6 +1,7 @@
 import { Column, Entity, Index } from "typeorm";
 import { AbstractEntity } from "../database/abstract.entity";
 import { ResponderStatus } from "../enums";
+import { Exclude } from "class-transformer";
 
 @Entity({ name: "responders" })
 export class Responder extends AbstractEntity<Responder> {
@@ -8,6 +9,7 @@ export class Responder extends AbstractEntity<Responder> {
   @Column({ type: "varchar", length: 255, nullable: false })
   token: string;
 
+  @Exclude()
   @Column({ type: "varchar", length: 255, nullable: false })
   password: string;
 
