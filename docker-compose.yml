@@ -64,7 +64,7 @@ services:
     depends_on:
       - postgres
       - redis
-      
+
   air-server-job-service:
     networks:
       - dfir_network
@@ -82,6 +82,20 @@ services:
       - postgres
       - rabbitmq
       - emqx_broker
+
+  # --- EXTERNAL SERVICES --- #
+  air-server-frontend:
+    networks:
+      - dfir_network
+    build:
+      context: ./apps/air-server-frontend
+      dockerfile: ./Dockerfile
+    ports:
+      - 8080:80
+    depends_on:
+      - air-server-auth
+      - air-server-responder
+      - air-server-job-service
 
   # --- EXTERNAL SERVICES --- #
   postgres:

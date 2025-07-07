@@ -75,6 +75,12 @@ export class EmqxService {
     this.logger.log(`Successfully created ACL rule for user: ${username}`);
   }
 
+  async deprovisionAcl(username: string): Promise<void> {
+    const endpoint = `/authorization/sources/built_in_database/rules/users/${username}`;
+    await this.requestWithAuth("delete", endpoint);
+    this.logger.log(`Successfully deprovisioned EMQX user: ${username}`);
+  }
+
   private async login(): Promise<void> {
     this.logger.log(
       "EMQX API token is invalid or expired. Attempting to log in...",

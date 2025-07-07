@@ -7,6 +7,7 @@ import {
   JOB_SERVICE,
   LoggerModule,
   MasterDatabaseModule,
+  MqttModule,
   TenancyModule,
 } from "@app/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
@@ -20,7 +21,6 @@ import { ResponderHealthController } from "./responder-health.controller";
 import { BatchUpdateRespondersHandler } from "./commands/handlers/batch-update-responders.handler";
 import { GetRespondersQueryHandler } from "./queries/handlers/get-responders.handler";
 import { DeregisterResponderHandler } from "./commands/handlers/deregister-responder.handler";
-import { MqttModule } from "services/job-service/src/mqtt/mqtt.module";
 
 export const CommandHandlers = [
   RegisterResponderHandler,

@@ -18,6 +18,7 @@ async function bootstrap() {
   });
   app.useLogger(app.get(Logger));
   app.useGlobalPipes(new ValidationPipe());
+  app.enableCors();
   await app.startAllMicroservices();
   await app.listen(configService.getOrThrow("PORT"));
 }

@@ -10,7 +10,5 @@
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.12.4",
-  "dependencies": {
-    "mqtt": "^5.13.1"
-  }
+  "dependencies": {}
 }

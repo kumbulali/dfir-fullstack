@@ -12,7 +12,6 @@
   "packageManager": "pnpm@10.12.1",
   "dependencies": {
     "@nestjs/axios": "^4.0.0",
-    "axios": "^1.10.0",
-    "mqtt": "^5.13.1"
+    "axios": "^1.10.0"
   }
 }

@@ -54,6 +54,7 @@ export class DeregisterResponderHandler
 
     try {
       await this.emqxService.deprovisionUser(responder.token);
+      await this.emqxService.deprovisionAcl(responder.token);
     } catch (error) {
       this.logger.error(
         `EMQX kullanıcısı ${responder.id} silinirken hata oluştu. Veritabanı işlemi iptal edildi.`,

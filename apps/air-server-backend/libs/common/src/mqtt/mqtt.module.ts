@@ -2,8 +2,7 @@ import { Module, Global, DynamicModule } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { MqttClient, connect } from "mqtt";
 import { Logger } from "@nestjs/common";
-
-export const MQTT_CLIENT = "MQTT_CLIENT";
+import { MQTT_CLIENT } from "../constants";
 
 @Global()
 @Module({})
