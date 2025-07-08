@@ -3,10 +3,16 @@ import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { ConfigModule } from "@nestjs/config";
 import * as Joi from "joi";
-import { LoggerModule } from "@app/common";
+import { HealthModule, LoggerModule, MasterDatabaseModule } from "@app/common";
+import { AuthModule } from "./auth/auth.module";
+import { AdminUsersModule } from "./admin-users/admin-users.module";
+import { SeederModule } from "./seeders/seeder.module";
+import { TenantsModule } from "./tenants/tenants.module";
 
 @Module({
   imports: [
+    HealthModule,
+    MasterDatabaseModule,
     LoggerModule,
     ConfigModule.forRoot({
       isGlobal: true,
@@ -21,6 +27,10 @@ import { LoggerModule } from "@app/common";
         JWT_SECRET: Joi.string().required(),
       }),
     }),
+    AuthModule,
+    AdminUsersModule,
+    SeederModule,
+    TenantsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

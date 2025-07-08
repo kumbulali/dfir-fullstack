@@ -1,117 +1,117 @@
 services:
   # --- AIR SERVER BACKEND SERVICES --- #
-  air-server-auth:
-    networks:
-      - dfir_network
-    build:
-      context: ./apps/air-server-backend
-      dockerfile: ./services/auth/Dockerfile
-    env_file:
-      - ./apps/air-server-backend/services/auth/.env
-    command: pnpm --filter air-server-backend run start:dev auth
-    ports:
-      - 3000:3000
-    volumes:
-      - .:/usr/src/app
-    depends_on:
-      - postgres
-      - rabbitmq
+  # air-server-auth:
+  #   networks:
+  #     - dfir_network
+  #   build:
+  #     context: ./apps/air-server-backend
+  #     dockerfile: ./services/auth/Dockerfile
+  #   env_file:
+  #     - ./apps/air-server-backend/services/auth/.env
+  #   command: pnpm --filter air-server-backend run start:dev auth
+  #   ports:
+  #     - 3000:3000
+  #   volumes:
+  #     - .:/usr/src/app
+  #   depends_on:
+  #     - postgres
+  #     - rabbitmq
 
-  air-server-responder:
-    networks:
-      - dfir_network
-    build:
-      context: ./apps/air-server-backend
-      dockerfile: ./services/responder/Dockerfile
-    env_file:
-      - ./apps/air-server-backend/services/responder/.env
-    command: pnpm --filter air-server-backend run start:dev responder
-    ports:
-      - 3001:3001
-    volumes:
-      - .:/usr/src/app
-    depends_on:
-      - postgres
-      - rabbitmq
-      - emqx_broker
+  # air-server-responder:
+  #   networks:
+  #     - dfir_network
+  #   build:
+  #     context: ./apps/air-server-backend
+  #     dockerfile: ./services/responder/Dockerfile
+  #   env_file:
+  #     - ./apps/air-server-backend/services/responder/.env
+  #   command: pnpm --filter air-server-backend run start:dev responder
+  #   ports:
+  #     - 3001:3001
+  #   volumes:
+  #     - .:/usr/src/app
+  #   depends_on:
+  #     - postgres
+  #     - rabbitmq
+  #     - emqx_broker
 
-  air-server-ingestion:
-    networks:
-      - dfir_network
-    build:
-      context: ./apps/air-server-backend
-      dockerfile: ./services/ingestion/Dockerfile
-    env_file:
-      - ./apps/air-server-backend/services/ingestion/.env
-    command: pnpm --filter air-server-backend run start:dev ingestion
-    volumes:
-      - .:/usr/src/app
-    depends_on:
-      - rabbitmq
-      - emqx_broker
+  # air-server-ingestion:
+  #   networks:
+  #     - dfir_network
+  #   build:
+  #     context: ./apps/air-server-backend
+  #     dockerfile: ./services/ingestion/Dockerfile
+  #   env_file:
+  #     - ./apps/air-server-backend/services/ingestion/.env
+  #   command: pnpm --filter air-server-backend run start:dev ingestion
+  #   volumes:
+  #     - .:/usr/src/app
+  #   depends_on:
+  #     - rabbitmq
+  #     - emqx_broker
 
-  air-server-sync:
-    networks:
-      - dfir_network
-    build:
-      context: ./apps/air-server-backend
-      dockerfile: ./services/sync/Dockerfile
-    env_file:
-      - ./apps/air-server-backend/services/sync/.env
-    command: pnpm --filter air-server-backend run start:dev sync
-    volumes:
-      - .:/usr/src/app
-    depends_on:
-      - postgres
-      - redis
+  # air-server-sync:
+  #   networks:
+  #     - dfir_network
+  #   build:
+  #     context: ./apps/air-server-backend
+  #     dockerfile: ./services/sync/Dockerfile
+  #   env_file:
+  #     - ./apps/air-server-backend/services/sync/.env
+  #   command: pnpm --filter air-server-backend run start:dev sync
+  #   volumes:
+  #     - .:/usr/src/app
+  #   depends_on:
+  #     - postgres
+  #     - redis
 
-  air-server-job-service:
-    networks:
-      - dfir_network
-    build:
-      context: ./apps/air-server-backend
-      dockerfile: ./services/job-service/Dockerfile
-    env_file:
-      - ./apps/air-server-backend/services/job-service/.env
-    command: pnpm --filter air-server-backend run start:dev job-service
-    ports:
-      - 3002:3002
-    volumes:
-      - .:/usr/src/app
-    depends_on:
-      - postgres
-      - rabbitmq
-      - emqx_broker
+  # air-server-job-service:
+  #   networks:
+  #     - dfir_network
+  #   build:
+  #     context: ./apps/air-server-backend
+  #     dockerfile: ./services/job-service/Dockerfile
+  #   env_file:
+  #     - ./apps/air-server-backend/services/job-service/.env
+  #   command: pnpm --filter air-server-backend run start:dev job-service
+  #   ports:
+  #     - 3002:3002
+  #   volumes:
+  #     - .:/usr/src/app
+  #   depends_on:
+  #     - postgres
+  #     - rabbitmq
+  #     - emqx_broker
 
-  air-server-stats-aggregator:
-    networks:
-      - dfir_network
-    build:
-      context: ./apps/air-server-backend
-      dockerfile: ./services/stats-aggregator/Dockerfile
-    env_file:
-      - ./apps/air-server-backend/services/stats-aggregator/.env
-    command: pnpm --filter air-server-backend run start:dev stats-aggregator
-    volumes:
-      - .:/usr/src/app
-    depends_on:
-      - postgres
-      - rabbitmq
-      - redis
+  # air-server-stats-aggregator:
+  #   networks:
+  #     - dfir_network
+  #   build:
+  #     context: ./apps/air-server-backend
+  #     dockerfile: ./services/stats-aggregator/Dockerfile
+  #   env_file:
+  #     - ./apps/air-server-backend/services/stats-aggregator/.env
+  #   command: pnpm --filter air-server-backend run start:dev stats-aggregator
+  #   volumes:
+  #     - .:/usr/src/app
+  #   depends_on:
+  #     - postgres
+  #     - rabbitmq
+  #     - redis
 
   # --- AIR SERVER FRONTEND SERVICE --- #
-  air-server-frontend:
-    networks:
-      - dfir_network
-    build:
-      context: ./apps/air-server-frontend
-      dockerfile: ./Dockerfile
-    ports:
-      - 8080:80
-    depends_on:
-      - air-server-auth
-      - air-server-responder
-      - air-server-job-service
+  # air-server-frontend:
+  #   networks:
+  #     - dfir_network
+  #   build:
+  #     context: ./apps/air-server-frontend
+  #     dockerfile: ./Dockerfile
+  #   ports:
+  #     - 8080:80
+  #   depends_on:
+  #     - air-server-auth
+  #     - air-server-responder
+  #     - air-server-job-service
 
   # --- ADMIN BACKEND SERVICES --- #
   admin-backend:
@@ -178,8 +178,8 @@ services:
       - ./emqx/data:/opt/emqx/data
     networks:
       - dfir_network
-    depends_on:
-      - air-server-auth
+    # depends_on:
+    #   - air-server-auth
 networks:
   dfir_network:
     driver: bridge
