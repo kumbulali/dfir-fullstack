@@ -3,7 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import { getDataSourceToken, TypeOrmModule } from "@nestjs/typeorm";
 import { DataSource } from "typeorm";
 import { MASTER_DB_CONNECTION } from "../constants";
-import { Tenant } from "../entities";
+import { GlobalStats, Tenant } from "../entities";
 
 const masterDataSourceProvider = {
   provide: MASTER_DB_CONNECTION,
@@ -23,7 +23,7 @@ const masterDataSourceProvider = {
         database: configService.getOrThrow("POSTGRES_DB"),
         username: configService.getOrThrow("POSTGRES_USERNAME"),
         password: configService.getOrThrow("POSTGRES_PASSWORD"),
-        entities: [Tenant],
+        entities: [Tenant, GlobalStats],
         synchronize: true,
       }),
       inject: [ConfigService],

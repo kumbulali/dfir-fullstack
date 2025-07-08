@@ -1,7 +1,13 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { Logger, NotFoundException } from "@nestjs/common";
-import { Job, JobStatus, TenantConnectionManager } from "@app/common";
+import { Inject, Logger, NotFoundException } from "@nestjs/common";
+import {
+  Job,
+  JobStatus,
+  STATS_AGGREGATOR_SERVICE,
+  TenantConnectionManager,
+} from "@app/common";
 import { SubmitJobResultCommand } from "../impl/submit-job-result.command";
+import { ClientProxy } from "@nestjs/microservices";
 
 @CommandHandler(SubmitJobResultCommand)
 export class SubmitJobResultHandler
@@ -9,7 +15,10 @@ export class SubmitJobResultHandler
 {
   private readonly logger = new Logger(SubmitJobResultHandler.name);
 
-  constructor(private readonly tenantManager: TenantConnectionManager) {}
+  constructor(
+    private readonly tenantManager: TenantConnectionManager,
+    @Inject(STATS_AGGREGATOR_SERVICE) private readonly statsClient: ClientProxy,
+  ) {}
 
   async execute(command: SubmitJobResultCommand) {
     const { tenantId, jobId, result } = command;
@@ -30,6 +39,11 @@ export class SubmitJobResultHandler
         `Job with ID ${jobId} not found or could not be updated.`,
       );
     }
+
+    this.statsClient.emit("job.status.changed", {
+      fromStatus: "pending",
+      toStatus: "completed",
+    });
 
     this.logger.log(`Job ${jobId} for tenant ${tenantId} marked as COMPLETED.`);
 

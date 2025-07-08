@@ -11,6 +11,7 @@ import {
   AUTH_SERVICE,
   EnrollmentToken,
   Responder,
+  STATS_AGGREGATOR_SERVICE,
   TenantConnectionManager,
 } from "@app/common";
 import { EmqxService } from "../../emqx.service";
@@ -28,6 +29,7 @@ export class RegisterResponderHandler
     private readonly tenantManager: TenantConnectionManager,
     private readonly emqxService: EmqxService,
     @Inject(AUTH_SERVICE) private readonly authClient: ClientProxy,
+    @Inject(STATS_AGGREGATOR_SERVICE) private readonly statsClient: ClientProxy,
   ) {}
 
   async execute(command: RegisterResponderCommand) {
@@ -96,6 +98,11 @@ export class RegisterResponderHandler
         "Failed to provision responder in MQTT broker.",
       );
     }
+
+    this.statsClient.emit("responder.created", {
+      tenantId: tenantId,
+      responderId: savedResponder.id,
+    });
 
     return {
       message: "Responder registered and provisioned successfully.",

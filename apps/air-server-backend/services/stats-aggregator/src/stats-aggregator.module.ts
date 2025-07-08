@@ -1,13 +1,15 @@
 import { Module } from "@nestjs/common";
 import { StatsAggregatorController } from "./stats-aggregator.controller";
-import { StatsAggregatorService } from "./stats-aggregator.service";
-import { LoggerModule, MasterDatabaseModule, REDIS_CLIENT } from "@app/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import * as Joi from "joi";
 import { CqrsModule } from "@nestjs/cqrs";
+import { LoggerModule, MasterDatabaseModule, REDIS_CLIENT } from "@app/common";
+import { UpdateStatsHandler } from "./commands/handlers/update-stats.handler";
 import Redis from "ioredis";
+import { ScheduleModule } from "@nestjs/schedule";
+import { StatsAggregatorService } from "./stats-aggregator.service";
 
-export const CommandHandlers = [];
+export const CommandHandlers = [UpdateStatsHandler];
 
 @Module({
   imports: [
@@ -25,13 +27,14 @@ export const CommandHandlers = [];
         REDIS_PORT: Joi.number().required(),
       }),
     }),
-    MasterDatabaseModule,
     CqrsModule,
+    MasterDatabaseModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [StatsAggregatorController],
   providers: [
-    StatsAggregatorService,
     ...CommandHandlers,
+    StatsAggregatorService,
     {
       provide: REDIS_CLIENT,
       inject: [ConfigService],

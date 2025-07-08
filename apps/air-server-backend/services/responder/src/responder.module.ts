@@ -8,6 +8,7 @@ import {
   LoggerModule,
   MasterDatabaseModule,
   MqttModule,
+  STATS_AGGREGATOR_SERVICE,
   TenancyModule,
 } from "@app/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
@@ -78,6 +79,17 @@ export const QueryHandlers = [GetRespondersQueryHandler];
           options: {
             urls: [configService.getOrThrow<string>("RABBITMQ_URI")],
             queue: JOB_SERVICE,
+          },
+        }),
+        inject: [ConfigService],
+      },
+      {
+        name: STATS_AGGREGATOR_SERVICE,
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.RMQ,
+          options: {
+            urls: [configService.getOrThrow<string>("RABBITMQ_URI")],
+            queue: STATS_AGGREGATOR_SERVICE,
           },
         }),
         inject: [ConfigService],

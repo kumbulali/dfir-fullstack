@@ -6,8 +6,10 @@ import {
   Job,
   MQTT_CLIENT,
   Responder,
+  STATS_AGGREGATOR_SERVICE,
   TenantConnectionManager,
 } from "@app/common";
+import { ClientProxy } from "@nestjs/microservices";
 
 @CommandHandler(AssignJobCommand)
 export class AssignJobHandler implements ICommandHandler<AssignJobCommand> {
@@ -16,6 +18,7 @@ export class AssignJobHandler implements ICommandHandler<AssignJobCommand> {
   constructor(
     private readonly tenantManager: TenantConnectionManager,
     @Inject(MQTT_CLIENT) private readonly mqttClient: MqttClient,
+    @Inject(STATS_AGGREGATOR_SERVICE) private readonly statsClient: ClientProxy,
   ) {}
 
   async execute(command: AssignJobCommand) {
@@ -44,6 +47,11 @@ export class AssignJobHandler implements ICommandHandler<AssignJobCommand> {
 
     const requestTopic = `command/request/${tenantId}/${responder.id}`;
     this.mqttClient.publish(requestTopic, JSON.stringify(payload));
+
+    this.statsClient.emit("job.status.changed", {
+      fromStatus: "none",
+      toStatus: "pending",
+    });
 
     this.logger.log(
       `Job ${savedJob.id} (${task}) assigned to responder ${responder.id} via EMQX`,
