@@ -83,6 +83,22 @@ services:
       - rabbitmq
       - emqx_broker
 
+  air-server-stats-aggregator:
+    networks:
+      - dfir_network
+    build:
+      context: ./apps/air-server-backend
+      dockerfile: ./services/stats-aggregator/Dockerfile
+    env_file:
+      - ./apps/air-server-backend/services/stats-aggregator/.env
+    command: pnpm --filter air-server-backend run start:dev stats-aggregator
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      - postgres
+      - rabbitmq
+      - redis
+
   # --- AIR SERVER FRONTEND SERVICE --- #
   air-server-frontend:
     networks:

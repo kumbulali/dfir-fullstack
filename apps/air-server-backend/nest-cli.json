@@ -55,6 +55,15 @@
         "tsConfigPath": "services/responder/tsconfig.app.json"
       }
     },
+    "stats-aggregator": {
+      "type": "application",
+      "root": "services/stats-aggregator",
+      "entryFile": "main",
+      "sourceRoot": "services/stats-aggregator/src",
+      "compilerOptions": {
+        "tsConfigPath": "services/stats-aggregator/tsconfig.app.json"
+      }
+    },
     "sync": {
       "type": "application",
       "root": "services/sync",
