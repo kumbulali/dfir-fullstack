@@ -3,7 +3,7 @@ import { NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { TenantConnectionManager } from "@app/common/database/tenant-connection.manager";
 import { LoginUserQuery } from "../impl/login-user.query";
 import { User } from "@app/common";
-// import * as bcrypt from "bcrypt";
+import * as bcrypt from "bcrypt";
 
 @QueryHandler(LoginUserQuery)
 export class LoginUserQueryHandler implements IQueryHandler<LoginUserQuery> {
@@ -20,8 +20,7 @@ export class LoginUserQueryHandler implements IQueryHandler<LoginUserQuery> {
       throw new NotFoundException("User with this email not found.");
     }
 
-    // const isPasswordMatching = await bcrypt.compare(password, user.password);
-    const isPasswordMatching = password === user.password;
+    const isPasswordMatching = await bcrypt.compare(password, user.password);
     if (!isPasswordMatching) {
       throw new UnauthorizedException("Invalid credentials.");
     }
