@@ -1,0 +1,1326 @@
+{
+	"info": {
+		"_postman_id": "6fa2045a-5c1b-404c-a09e-0d48a9d43a0e",
+		"name": "AIR-Admin",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "13895449",
+		"_collection_link": "https://testlio-team.postman.co/workspace/Binalyze~63f9ea34-e6a4-4ce9-8cf2-c302ad28d0ff/collection/13895449-6fa2045a-5c1b-404c-a09e-0d48a9d43a0e?action=share&source=collection_link&creator=13895449"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{admin_service}}/health",
+							"host": [
+								"{{admin_service}}"
+							],
+							"path": [
+								"health"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Example",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{admin_service}}/health",
+									"host": [
+										"{{admin_service}}"
+									],
+									"path": [
+										"health"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "16"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"10-oV4hJxRVSENxc/wX8+mA4/Pe4tA\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 09 Jul 2025 19:18:43 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true\n}"
+						}
+					]
+				},
+				{
+					"name": "Profile",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{admin_service}}/auth/profile",
+							"host": [
+								"{{admin_service}}"
+							],
+							"path": [
+								"auth",
+								"profile"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Example",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{admin_service}}/auth/profile",
+									"host": [
+										"{{admin_service}}"
+									],
+									"path": [
+										"auth",
+										"profile"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "40"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"28-LGbjzJgYGXbvMm/Pr1A0oj05Slg\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 09 Jul 2025 19:19:27 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"userId\": 1,\n    \"username\": \"admin@test.com\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response = pm.response.json();",
+									"pm.collectionVariables.set(\"admin_access_token\", response.accessToken);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-tenant-id",
+								"value": "test",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@test.com\",\n    \"password\": \"test123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{admin_service}}/auth/login",
+							"host": [
+								"{{admin_service}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Example",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-tenant-id",
+										"value": "test",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"admin@test.com\",\n    \"password\": \"test123\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{admin_service}}/auth/login",
+									"host": [
+										"{{admin_service}}"
+									],
+									"path": [
+										"auth",
+										"login"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "194"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"c2-1yiZ1F8m8g5i4gA0tZF0KCCLQ6Q\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 09 Jul 2025 19:18:58 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluQHRlc3QuY29tIiwic3ViIjoxLCJpYXQiOjE3NTIwODg3MzgsImV4cCI6MTc1MjA5MjMzOH0.K3G9WQtCxINjrEZ_4Gq0Rou7RMoXuRZmIlYZUUP9Tj4\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Tenants",
+			"item": [
+				{
+					"name": "Create Tenant",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"tenantId\": \"test_tenant\",\n    \"tenantName\": \"Test Tenant\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{admin_service}}/tenants",
+							"host": [
+								"{{admin_service}}"
+							],
+							"path": [
+								"tenants"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Example",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"tenantId\": \"test_tenant\",\n    \"tenantName\": \"Test Tenant\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{admin_service}}/tenants",
+									"host": [
+										"{{admin_service}}"
+									],
+									"path": [
+										"tenants"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "276"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"114-QiBmYDu78Y3sIv2CYQikDN2sP+U\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 09 Jul 2025 19:19:49 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"test_tenant\",\n    \"name\": \"Test Tenant\",\n    \"status\": \"active\",\n    \"dbHost\": \"postgres\",\n    \"dbName\": \"dfir_tenant_test_tenant\",\n    \"dbUser\": \"dfir_user_test_tenant\",\n    \"dbPasswordRef\": \"7dda635c7c6cd8c56c9f4bbeafc6adf5\",\n    \"createdAt\": \"2025-07-09T19:19:49.747Z\",\n    \"updatedAt\": \"2025-07-09T19:19:49.747Z\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Tenants",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{admin_service}}/tenants",
+							"host": [
+								"{{admin_service}}"
+							],
+							"path": [
+								"tenants"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Example",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{admin_service}}/tenants",
+									"host": [
+										"{{admin_service}}"
+									],
+									"path": [
+										"tenants"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "634"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"27a-UVgh6E4O/fK/2bgrZYf14H44nRc\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 09 Jul 2025 19:20:01 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": [\n        {\n            \"id\": \"test_tenant\",\n            \"name\": \"Test Tenant\",\n            \"status\": \"active\",\n            \"dbHost\": \"postgres\",\n            \"dbName\": \"dfir_tenant_test_tenant\",\n            \"dbUser\": \"dfir_user_test_tenant\",\n            \"dbPasswordRef\": \"7dda635c7c6cd8c56c9f4bbeafc6adf5\",\n            \"createdAt\": \"2025-07-09T19:19:49.747Z\",\n            \"updatedAt\": \"2025-07-09T19:19:49.747Z\"\n        },\n        {\n            \"id\": \"test3\",\n            \"name\": \"Test3 Tenant\",\n            \"status\": \"active\",\n            \"dbHost\": \"postgres\",\n            \"dbName\": \"dfir_tenant_test3\",\n            \"dbUser\": \"dfir_user_test3\",\n            \"dbPasswordRef\": \"0d6360abb61d17244be8351add2c2eb5\",\n            \"createdAt\": \"2025-07-09T17:55:20.089Z\",\n            \"updatedAt\": \"2025-07-09T17:55:20.089Z\"\n        }\n    ],\n    \"meta\": {\n        \"totalItems\": 2,\n        \"itemCount\": 2,\n        \"itemsPerPage\": 10,\n        \"totalPages\": 1,\n        \"currentPage\": 1\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Tenants By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{admin_service}}/tenants/test_tenant",
+							"host": [
+								"{{admin_service}}"
+							],
+							"path": [
+								"tenants",
+								"test_tenant"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Example",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{admin_service}}/tenants/test_tenant",
+									"host": [
+										"{{admin_service}}"
+									],
+									"path": [
+										"tenants",
+										"test_tenant"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "276"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"114-QiBmYDu78Y3sIv2CYQikDN2sP+U\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 09 Jul 2025 19:20:13 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"test_tenant\",\n    \"name\": \"Test Tenant\",\n    \"status\": \"active\",\n    \"dbHost\": \"postgres\",\n    \"dbName\": \"dfir_tenant_test_tenant\",\n    \"dbUser\": \"dfir_user_test_tenant\",\n    \"dbPasswordRef\": \"7dda635c7c6cd8c56c9f4bbeafc6adf5\",\n    \"createdAt\": \"2025-07-09T19:19:49.747Z\",\n    \"updatedAt\": \"2025-07-09T19:19:49.747Z\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Update Tenant By ID",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Updated Test Tenant\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{admin_service}}/tenants/test_tenant",
+							"host": [
+								"{{admin_service}}"
+							],
+							"path": [
+								"tenants",
+								"test_tenant"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Update Tenant By ID",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Updated Test Tenant\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{admin_service}}/tenants/test_tenant",
+									"host": [
+										"{{admin_service}}"
+									],
+									"path": [
+										"tenants",
+										"test_tenant"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "284"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"11c-lbrjtmr9kIKVAt5NlkxcHcslFsU\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 09 Jul 2025 19:20:36 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"test_tenant\",\n    \"name\": \"Updated Test Tenant\",\n    \"status\": \"active\",\n    \"dbHost\": \"postgres\",\n    \"dbName\": \"dfir_tenant_test_tenant\",\n    \"dbUser\": \"dfir_user_test_tenant\",\n    \"dbPasswordRef\": \"7dda635c7c6cd8c56c9f4bbeafc6adf5\",\n    \"createdAt\": \"2025-07-09T19:19:49.747Z\",\n    \"updatedAt\": \"2025-07-09T19:20:36.989Z\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Delete Tenant By ID",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{admin_service}}/tenants/test3",
+							"host": [
+								"{{admin_service}}"
+							],
+							"path": [
+								"tenants",
+								"test3"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Example",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{admin_service}}/tenants/test3",
+									"host": [
+										"{{admin_service}}"
+									],
+									"path": [
+										"tenants",
+										"test3"
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "plain",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 09 Jul 2025 19:21:09 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": null
+						}
+					]
+				},
+				{
+					"name": "Get Tenant Stats",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{admin_service}}/tenants/test3/stats",
+							"host": [
+								"{{admin_service}}"
+							],
+							"path": [
+								"tenants",
+								"test3",
+								"stats"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Example",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{admin_service}}/tenants/test3/stats",
+									"host": [
+										"{{admin_service}}"
+									],
+									"path": [
+										"tenants",
+										"test3",
+										"stats"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "74"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"4a-/vvRoRHeexzYeHT3TGBjly6hMPQ\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 09 Jul 2025 19:20:49 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"totalUsers\": 1,\n    \"totalResponders\": 1,\n    \"healthyResponders\": 0,\n    \"healthyRate\": 0\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"user@test-tenant.com\",\n    \"password\": \"testPass123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{admin_service}}/tenants/test_tenant/users",
+							"host": [
+								"{{admin_service}}"
+							],
+							"path": [
+								"tenants",
+								"test_tenant",
+								"users"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Example",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"user@test-tenant.com\",\n    \"password\": \"testPass123\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{admin_service}}/tenants/test_tenant/users",
+									"host": [
+										"{{admin_service}}"
+									],
+									"path": [
+										"tenants",
+										"test_tenant",
+										"users"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "117"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"75-buJOUVp7EOj3yXAMmWfzN7KzO9E\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 09 Jul 2025 19:23:02 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": 1,\n    \"createdAt\": \"2025-07-09T19:23:02.790Z\",\n    \"updatedAt\": \"2025-07-09T19:23:02.790Z\",\n    \"email\": \"user@test-tenant.com\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Users Of Tenant",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{admin_service}}/tenants/test2/users",
+							"host": [
+								"{{admin_service}}"
+							],
+							"path": [
+								"tenants",
+								"test2",
+								"users"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Example",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{admin_service}}/tenants/test2/users",
+									"host": [
+										"{{admin_service}}"
+									],
+									"path": [
+										"tenants",
+										"test2",
+										"users"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "209"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"d1-reW9Xt5YLEPoELkSjTQSZz1P9K0\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 09 Jul 2025 17:10:42 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": [\n        {\n            \"id\": 1,\n            \"createdAt\": \"2025-07-08T21:57:20.136Z\",\n            \"updatedAt\": \"2025-07-08T21:57:20.136Z\",\n            \"email\": \"ali@kumbul.com\"\n        }\n    ],\n    \"meta\": {\n        \"totalItems\": 1,\n        \"itemCount\": 1,\n        \"itemsPerPage\": 10,\n        \"totalPages\": 1,\n        \"currentPage\": 1\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get User Of Tenant By User ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{admin_service}}/tenants/test2/users/1",
+							"host": [
+								"{{admin_service}}"
+							],
+							"path": [
+								"tenants",
+								"test2",
+								"users",
+								"1"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Example",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{admin_service}}/tenants/test2/users/1",
+									"host": [
+										"{{admin_service}}"
+									],
+									"path": [
+										"tenants",
+										"test2",
+										"users",
+										"1"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "111"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"6f-SRh9fwJV2S4gctO9eERPZcg26T4\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 09 Jul 2025 17:13:04 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": 1,\n    \"createdAt\": \"2025-07-08T21:57:20.136Z\",\n    \"updatedAt\": \"2025-07-09T17:12:08.095Z\",\n    \"email\": \"ali@kumbul.com\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Update User Of Tenant By User ID",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"password\": \"12345678\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{admin_service}}/tenants/test2/users/1",
+							"host": [
+								"{{admin_service}}"
+							],
+							"path": [
+								"tenants",
+								"test2",
+								"users",
+								"1"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Example",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"password\": \"12345678\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{admin_service}}/tenants/test2/users/1",
+									"host": [
+										"{{admin_service}}"
+									],
+									"path": [
+										"tenants",
+										"test2",
+										"users",
+										"1"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "111"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"6f-zsutmMSprwKxmcPzkM9m45UrgbY\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 09 Jul 2025 17:13:27 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": 1,\n    \"createdAt\": \"2025-07-08T21:57:20.136Z\",\n    \"updatedAt\": \"2025-07-09T17:13:27.101Z\",\n    \"email\": \"ali@kumbul.com\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Delete User Of Tenant By User ID",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{admin_service}}/tenants/test2/users/1",
+							"host": [
+								"{{admin_service}}"
+							],
+							"path": [
+								"tenants",
+								"test2",
+								"users",
+								"1"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Example",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{admin_service}}/tenants/test2/users/1",
+									"host": [
+										"{{admin_service}}"
+									],
+									"path": [
+										"tenants",
+										"test2",
+										"users",
+										"1"
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "plain",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 09 Jul 2025 17:13:51 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": null
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Dashboard",
+			"item": [
+				{
+					"name": "Get Stats",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-tenant-id",
+								"value": "test",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@test.com\",\n    \"password\": \"test123\"\n}"
+						},
+						"url": {
+							"raw": "{{admin_service}}/dashboard/stats",
+							"host": [
+								"{{admin_service}}"
+							],
+							"path": [
+								"dashboard",
+								"stats"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Example",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-tenant-id",
+										"value": "test",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"admin@test.com\",\n    \"password\": \"test123\"\n}"
+								},
+								"url": {
+									"raw": "{{admin_service}}/dashboard/stats",
+									"host": [
+										"{{admin_service}}"
+									],
+									"path": [
+										"dashboard",
+										"stats"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "173"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"ad-HAjHimofy1PcALmOj2vN9u5kkpE\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 09 Jul 2025 17:14:32 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": 1,\n    \"totalTenants\": 0,\n    \"totalResponders\": 2,\n    \"healthyResponders\": 0,\n    \"totalJobs\": 2,\n    \"pendingJobs\": 0,\n    \"completedJobs\": 2,\n    \"failedJobs\": 0,\n    \"lastUpdatedAt\": \"2025-07-08T22:03:00.016Z\"\n}"
+						}
+					]
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{admin_access_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "admin_service",
+			"value": "http://localhost:4000",
+			"type": "string"
+		},
+		{
+			"key": "admin_access_token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
