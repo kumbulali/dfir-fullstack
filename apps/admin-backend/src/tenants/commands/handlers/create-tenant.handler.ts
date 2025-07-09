@@ -49,15 +49,42 @@ export class CreateTenantHandler
     await suQueryRunner.connect();
 
     try {
-      this.logger.log(`Tenant ${tenantId} user creating...`);
+      this.logger.debug(`Tenant ${tenantId} user creating...`);
       await suQueryRunner.query(
         `CREATE USER "${dbUser}" WITH PASSWORD '${dbPassword}'`,
       );
-      this.logger.log(`Tenant ${tenantId} db creating...`);
+      this.logger.debug(`Tenant ${tenantId} db creating...`);
       await suQueryRunner.query(
         `CREATE DATABASE "${dbName}" OWNER "${dbUser}"`,
       );
-      this.logger.log(`DB & USER CREATE SUCCESS.`);
+      this.logger.debug(
+        `Revoking default public privileges on new database (${dbName})...`,
+      );
+      await suQueryRunner.query(
+        `REVOKE ALL ON DATABASE "${dbName}" FROM PUBLIC`,
+      );
+
+      this.logger.debug(
+        `Granting all privileges on database ${dbName} to new user ${dbUser}...`,
+      );
+      await suQueryRunner.query(
+        `GRANT ALL PRIVILEGES ON DATABASE "${dbName}" TO "${dbUser}"`,
+      );
+
+      const masterDbName = this.configService.get<string>("POSTGRES_DB");
+      this.logger.debug(
+        `Revoking public connect access from master database (${masterDbName})...`,
+      );
+      await suQueryRunner.query(
+        `REVOKE CONNECT ON DATABASE "${masterDbName}" FROM PUBLIC`,
+      );
+
+      this.logger.debug(
+        `Revoking public connect access from default 'postgres' database...`,
+      );
+      await suQueryRunner.query(
+        `REVOKE CONNECT ON DATABASE "postgres" FROM PUBLIC`,
+      );
 
       await this.runMigrationsForTenant(dbName, dbUser, dbPassword);
 
@@ -69,7 +96,7 @@ export class CreateTenantHandler
         dbPassword,
       );
 
-      this.logger.log(
+      this.logger.debug(
         `Tenant ${tenantId} record successfuly saved into master DB.`,
       );
       return savedTenant;
@@ -92,7 +119,7 @@ export class CreateTenantHandler
   ): Promise<void> {
     let tempDataSource: DataSource | null = null;
     try {
-      this.logger.log(
+      this.logger.debug(
         `Tenant ${dbName} temp connection for table generation with migrations...`,
       );
       tempDataSource = new DataSource({
@@ -107,7 +134,7 @@ export class CreateTenantHandler
         migrationsRun: true,
       });
       await tempDataSource.initialize();
-      this.logger.log(`Migrations are completed successfuly.`);
+      this.logger.debug(`Migrations are completed successfuly.`);
     } finally {
       if (tempDataSource?.isInitialized) {
         await tempDataSource.destroy();
