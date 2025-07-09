@@ -4,7 +4,7 @@ import { DataSource } from "typeorm";
 // import { GlobalStats } from '@app/common/stats/global-stats.entity';
 import { MASTER_DB_CONNECTION, REDIS_CLIENT } from "@app/common/constants";
 import Redis from "ioredis";
-import { GlobalStats } from "@app/common";
+import { GlobalStats, Tenant } from "@app/common";
 import { Readable } from "stream";
 
 @Injectable()
@@ -45,9 +45,12 @@ export class StatsAggregatorService {
       return;
     }
 
+    const tenantsRepo = this.masterConnection.getRepository(Tenant);
+    const totalTenantCount = await tenantsRepo.count();
+
     const statsToSave: Partial<GlobalStats> = {
       id: 1, // FOR UPDATE SAME ROW
-      totalTenants: parseInt(statsFromRedis.total_tenants, 10) || 0,
+      totalTenants: totalTenantCount || 0,
       totalResponders: parseInt(statsFromRedis.total_responders, 10) || 0,
       healthyResponders: parseInt(statsFromRedis.healthy_responders, 10) || 0,
       totalJobs: parseInt(statsFromRedis.total_jobs, 10) || 0,

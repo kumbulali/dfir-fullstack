@@ -14,6 +14,7 @@ import { AdminUsersModule } from "./admin-users/admin-users.module";
 import { SeederModule } from "./seeders/seeder.module";
 import { TenantsModule } from "./tenants/tenants.module";
 import { UsersModule } from "./users/users.module";
+import { DashboardModule } from "./dashboard/dashboard.module";
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { UsersModule } from "./users/users.module";
     SeederModule,
     TenantsModule,
     UsersModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],
