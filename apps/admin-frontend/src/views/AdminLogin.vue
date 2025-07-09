@@ -5,7 +5,7 @@
         <h1>AIR Server Admin</h1>
         <p>Master dashboard for system administration</p>
       </div>
-      
+
       <form @submit.prevent="handleLogin" class="login-form">
         <div class="form-group">
           <label class="form-label" for="email">Email</label>
@@ -18,7 +18,7 @@
             required
           />
         </div>
-        
+
         <div class="form-group">
           <label class="form-label" for="password">Password</label>
           <input
@@ -30,29 +30,22 @@
             required
           />
         </div>
-        
-        <button
-          type="submit"
-          class="btn btn-primary login-btn"
-          :disabled="loading"
-        >
-          {{ loading ? 'Signing in...' : 'Sign In' }}
+
+        <button type="submit" class="btn btn-primary login-btn" :disabled="loading">
+          {{ loading ? "Signing in..." : "Sign In" }}
         </button>
-        
+
         <div v-if="error" class="error-message">
           {{ error }}
         </div>
       </form>
-      
+
       <div class="login-info">
         <p><strong>System Health:</strong></p>
         <div class="api-status">
           <div class="status-item">
-            <span class="status-dot" :class="{ 'online': systemHealthy }"></span>
+            <span class="status-dot" :class="{ online: systemHealthy }"></span>
             <span>API Server (localhost:4000)</span>
-          </div>
-          <div v-if="healthData" class="health-details">
-            <small>Uptime: {{ Math.floor(healthData.uptime / 3600) }}h {{ Math.floor((healthData.uptime % 3600) / 60) }}m</small>
           </div>
         </div>
       </div>
@@ -61,65 +54,65 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '../stores/auth'
-import { dashboardService } from '../services/dashboard'
-import type { LoginCredentials, HealthStatus } from '../types'
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { useAuthStore } from "../stores/auth";
+import { dashboardService } from "../services/dashboard";
+import type { LoginCredentials, HealthStatus } from "../types";
 
-const router = useRouter()
-const authStore = useAuthStore()
+const router = useRouter();
+const authStore = useAuthStore();
 
 const form = ref<LoginCredentials>({
-  email: '',
-  password: ''
-})
+  email: "",
+  password: "",
+});
 
-const loading = ref<boolean>(false)
-const error = ref<string>('')
-const systemHealthy = ref<boolean>(false)
-const healthData = ref<HealthStatus | null>(null)
+const loading = ref<boolean>(false);
+const error = ref<string>("");
+const systemHealthy = ref<boolean>(false);
+const healthData = ref<HealthStatus | null>(null);
 
 const handleLogin = async (): Promise<void> => {
   try {
-    loading.value = true
-    error.value = ''
-    
-    await authStore.login(form.value)
-    router.push('/')
+    loading.value = true;
+    error.value = "";
+
+    await authStore.login(form.value);
+    router.push("/");
   } catch (err: any) {
-    console.error('Login error:', err)
-    
-    if (err.status === 0 || err.message.includes('Network error')) {
-      error.value = 'Cannot connect to API server. Please ensure it is running on localhost:4000.'
+    console.error("Login error:", err);
+
+    if (err.status === 0 || err.message.includes("Network error")) {
+      error.value = "Cannot connect to API server. Please ensure it is running on localhost:4000.";
     } else if (err.status === 401) {
-      error.value = 'Invalid admin credentials. Please check your email and password.'
+      error.value = "Invalid admin credentials. Please check your email and password.";
     } else if (err.status === 404) {
-      error.value = 'API endpoint not found. Please check if the server is running.'
+      error.value = "API endpoint not found. Please check if the server is running.";
     } else {
-      error.value = err.message || 'Login failed. Please try again.'
+      error.value = err.message || "Login failed. Please try again.";
     }
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const checkSystemHealth = async (): Promise<void> => {
   try {
-    const health = await dashboardService.getHealth()
-    healthData.value = health
-    systemHealthy.value = health.status === 'healthy'
+    const health = await dashboardService.getHealth();
+    healthData.value = health;
+    systemHealthy.value = health.success;
   } catch (error) {
-    console.error('Health check failed:', error)
-    systemHealthy.value = false
+    console.error("Health check failed:", error);
+    systemHealthy.value = false;
   }
-}
+};
 
 onMounted(() => {
-  checkSystemHealth()
+  checkSystemHealth();
   // Check health every 30 seconds
-  setInterval(checkSystemHealth, 30000)
-})
+  setInterval(checkSystemHealth, 30000);
+});
 </script>
 
 <style scoped>

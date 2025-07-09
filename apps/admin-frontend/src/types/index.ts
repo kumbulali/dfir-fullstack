@@ -97,7 +97,5 @@ export interface PieChartData extends ChartData {}
 export interface BarChartData extends ChartData {}
 
 export interface HealthStatus {
-  status: "healthy" | "unhealthy";
-  timestamp: string;
-  uptime: number;
+  success: true;
 }
