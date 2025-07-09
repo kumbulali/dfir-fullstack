@@ -1,0 +1,98 @@
+# This file is generated. Do not edit.
+# The configs are results of online config changes from UI/API/CLI.
+# To persist configs in this file, copy the content to etc/base.hocon.
+actions {
+  rabbitmq {
+    heartbeat_exchange_action {
+      connector = DFIR_RabbitMQ
+      created_at = 1752004438462
+      enable = true
+      last_modified_at = 1752004438462
+      parameters {
+        delivery_mode = non_persistent
+        exchange = health_exchange
+        payload_template = """~
+          {
+            "data": ${payload},
+            "topic": "${mqtt_topic}",
+            "timestamp": ${mqtt_time}
+          }~"""
+        publish_confirmation_timeout = "30s"
+        routing_key = heartbeat
+        wait_for_publish_confirmations = true
+      }
+      resource_opts {
+        batch_size = 1
+        health_check_interval = "15s"
+        inflight_window = 100
+        max_buffer_bytes = "256MB"
+        query_mode = async
+        request_ttl = "45s"
+        worker_pool_size = 16
+      }
+    }
+  }
+}
+authentication = [
+  {
+    backend = built_in_database
+    mechanism = password_based
+    password_hash_algorithm {name = sha256, salt_position = suffix}
+    user_id_type = username
+  }
+]
+authorization {
+  cache {
+    enable = true
+    excludes = ["t/1", "t/2"]
+    max_size = 32
+    ttl = "1m"
+  }
+  deny_action = ignore
+  no_match = allow
+  sources = [
+    {max_rules = 10, type = built_in_database}
+  ]
+}
+connectors {
+  rabbitmq {
+    DFIR_RabbitMQ {
+      heartbeat = "30s"
+      password = dfirpassword
+      pool_size = 8
+      port = 5672
+      resource_opts {
+        health_check_interval = "15s"
+        start_timeout = "5s"
+      }
+      server = rabbitmq
+      ssl {enable = false, verify = verify_peer}
+      timeout = "5s"
+      username = dfiruser
+      virtual_host = "/"
+    }
+  }
+}
+log {
+  console {}
+  file {}
+}
+rule_engine {
+  ignore_sys_message = true
+  jq_function_default_timeout = "10s"
+  rules {
+    rule_4yx5 {
+      actions = []
+      description = ""
+      enable = true
+      metadata {created_at = 1752004346393, last_modified_at = 1752004346393}
+      sql = """~
+        SELECT
+          payload,
+          topic as mqtt_topic,
+          timestamp as mqtt_time
+        FROM
+          "health/+/+"~"""
+    }
+  }
+}
