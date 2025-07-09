@@ -130,6 +130,20 @@ services:
     depends_on:
       - postgres
 
+  # --- ADMIN FRONTEND SERVICE --- #
+  admin-frontend:
+    networks:
+      - dfir_network
+    build:
+      context: ./apps/admin-frontend
+      dockerfile: ./Dockerfile
+    ports:
+      - 8090:80
+    depends_on:
+      - air-server-auth
+      - air-server-responder
+      - air-server-job-service
+
   # --- EXTERNAL SERVICES --- #
   postgres:
     image: postgres:17.5-alpine3.22
